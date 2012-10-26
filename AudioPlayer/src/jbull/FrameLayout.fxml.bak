@@ -17,8 +17,7 @@
           <menus>
             <Menu mnemonicParsing="false" text="File">
               <items>
-                <MenuItem mnemonicParsing="false" text="Add Files to Library" fx:id="addFiles" />
-                <MenuItem mnemonicParsing="false" text="Add Folder to Library" fx:id="addFolder" />
+                <MenuItem mnemonicParsing="false" text="Add files to Lirbrary" fx:id="addFiles" />
                 <MenuItem mnemonicParsing="false" text="Close" />
               </items>
             </Menu>
