@@ -56,8 +56,8 @@ public class Database {
                 + "length int NOT NULL,"
                 + "fileType varchar(10) NOT NULL,"
                 + "year varchar(4),"
-                + "url text NOT NULL,"
-                + "UNIQUE (url),"
+                + "filepath varchar NOT NULL,"
+                + "UNIQUE (filepath),"
                 + "PRIMARY KEY (songID)";
         createTableIfNotExists(tableName, sqlFields);
     }
@@ -99,7 +99,7 @@ public class Database {
     }
     
     public static void insertTrack(String title, String artist, String album,
-            String genre, int length, String fileType, String year, String url) throws SQLException {
+            String genre, int length, String fileType, String year, String filepath) throws SQLException {
         title = format(title, 255);
         artist = format(artist, 255);
         album = format(artist, 255);
@@ -108,8 +108,8 @@ public class Database {
         fileType = format(fileType, 10);
         year = format(year, 4);
         String sqlCommand = "INSERT INTO Tracks (title, artist, album, genre,"
-                + "length, fileType, year, url) VALUES ("+title+", "+artist+", "+album
-                + ", "+genre+", "+len+", "+fileType+", "+year+", "+url+")";
+                + "length, fileType, year, filepath) VALUES ("+title+", "+artist+", "+album
+                + ", "+genre+", "+len+", "+fileType+", "+year+", "+filepath+")";
         connection.createStatement().execute(sqlCommand);
     }
     
@@ -131,7 +131,7 @@ public class Database {
         t.year = rs.getString("year");
         t.fileType = rs.getString("fileType");
         t.songID = songID;
-        t.URL = rs.getString("url");
+        t.filepath = rs.getString("filepath");
         return t;
     }
     
@@ -149,7 +149,7 @@ public class Database {
             t.year = rs.getString("year");
             t.fileType = rs.getString("fileType");
             t.songID = rs.getInt("songID");
-            t.URL = rs.getString("url");
+            t.filepath = rs.getString("filepath");
             tracks.add(t);
         }
         return tracks;
@@ -163,7 +163,7 @@ public class Database {
         public String year = "";
         public int length = 0;
         public int songID;
-        public String URL = "";
+        public String filepath = "";
     }
     
     public static String format(String str, int length) {
