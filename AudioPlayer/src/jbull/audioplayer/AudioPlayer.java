@@ -13,12 +13,16 @@ import javafx.stage.Stage;
  * @author jordan
  */
 public class AudioPlayer extends javafx.application.Application {
-
+    
+    public static Stage stg;
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = new Application();
-        stage.setScene(new Scene(root));
+        Application application = new Application();
+        Launch launcher = new Launch(application);
+        stg = stage;
+        stage.setScene(new Scene(launcher));
         stage.show();
+        launcher.launch();
     }
     
 }

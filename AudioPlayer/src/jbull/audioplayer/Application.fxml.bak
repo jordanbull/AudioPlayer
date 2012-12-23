@@ -2,22 +2,18 @@
 
 <?import java.lang.*?>
 <?import java.util.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="823.0" xmlns:fx="http://javafx.com/fxml" fx:controller="jbull.FrameController">
+<fx:root type="javafx.scene.layout.Pane" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <BorderPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <center>
-        <fx:include source="gui/DefaultLayout.fxml" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
-      </center>
+    <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <top>
-        <MenuBar>
+        <MenuBar fx:id="menu">
           <menus>
             <Menu mnemonicParsing="false" text="File">
               <items>
-                <MenuItem mnemonicParsing="false" text="Add files to Lirbrary" fx:id="addFiles" />
                 <MenuItem mnemonicParsing="false" text="Close" />
               </items>
             </Menu>
@@ -36,4 +32,4 @@
       </top>
     </BorderPane>
   </children>
-</AnchorPane>
+</fx:root>
