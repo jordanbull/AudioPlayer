@@ -42,9 +42,7 @@ public class DatabaseTrackTests {
     @Test
     public void testCreateTable() throws SQLException {
         Database.createTableIfNotExists("testingtable", "field1 VARCHAR");
-        ResultSet results = conn.getMetaData().getTables(conn.getCatalog(), null, "testingtable" , null);
-        results.next();
-        assertTrue(results.getString("TABLE_NAME").equals("testingtable"));
+        Database.tableExists("testingtable");
     }
     
     /*

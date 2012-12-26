@@ -23,6 +23,9 @@ public class Database {
     private static final String PLAYLIST_TABLE = "Playlists";
     private static final String PLAYLIST_SONGS_TABLE = "PlaylistSongs";
     private static final String LIBRARY_TABLE = "Tracks";
+    private static final String SETTINGS_TABLE = "Settings";
+    private static final String PLUGINS_TABLE = "Plugins";
+    private static final String APPLICATION = "DefaultApplication";
     
     private static Connection connection;
     
@@ -55,7 +58,12 @@ public class Database {
                                   tableName + " ( " + sqlFields + " )");
     }
     
-    
+    protected static boolean tableExists(String tableName) throws SQLException {
+        ResultSet results = connection.getMetaData().getTables(
+                connection.getCatalog(), null, tableName , null);
+        results.next();
+        return results.getString("TABLE_NAME").equals(tableName);
+    }
     
     public static String format(String str, int length) {
         if (str == null) {
@@ -104,7 +112,7 @@ public class Database {
             editTrack = connection.prepareStatement(editTrackStr);
         }
 
-        public static void insertTrack(String title, String artist, String album,
+        protected static void insertTrack(String title, String artist, String album,
                 String genre, int length, String fileType, String year, String filepath) throws SQLException {
             addSongToLibrary.setString(1, format(title, 255));
             addSongToLibrary.setString(2, format(artist, 255));
@@ -136,7 +144,7 @@ public class Database {
             connection.createStatement().execute(sqlQuery);
         }
 
-        public static Track getTrack(int songID) throws SQLException {
+        protected static Track getTrack(int songID) throws SQLException {
             getTrackByID.setInt(1, songID);
             ResultSet rs = getTrackByID.executeQuery();
             rs.next();
@@ -153,7 +161,7 @@ public class Database {
             return t;
         }
 
-        public static ArrayList<Track> getAllTracks(String orderBy) throws SQLException {
+        protected static ArrayList<Track> getAllTracks(String orderBy) throws SQLException {
             String sqlQuery = getAllTracksOrderedStr + orderBy;
             ArrayList<Track> tracks = new ArrayList<Track>();
             ResultSet rs = connection.createStatement().executeQuery(sqlQuery);
@@ -208,15 +216,18 @@ public class Database {
         private static PreparedStatement getPlaylistSongs;
         
         protected static void createPlaylistsTable() throws SQLException {
-            String tableName = "Playlists";
+            boolean tableExists = tableExists(PLAYLIST_TABLE);
             String sqlFields =
                     "pid int NOT NULL AUTO_INCREMENT,"
                     + "name varchar(255) NOT NULL,"
                     + "UNIQUE (name),"
                     + "PRIMARY KEY (pid)";
-            createTableIfNotExists(tableName, sqlFields);
-
-            tableName = "PlaylistSongs";
+            createTableIfNotExists(PLAYLIST_TABLE, sqlFields);
+            
+            if (!tableExists) {
+                createPlaylist("new playlist");
+            }
+            
             sqlFields = 
                     "pid int NOT NULL,"
                     + "sid int NOT NULL,"
@@ -224,17 +235,17 @@ public class Database {
                     + "PRIMARY KEY (pid, position),"
                     + "FOREIGN KEY (sid) REFERENCES "+LIBRARY_TABLE+"(songID),"
                     + "FOREIGN KEY (pid) REFERENCES "+PLAYLIST_TABLE+"(pid)";
-            createTableIfNotExists(tableName, sqlFields);
+            createTableIfNotExists(PLAYLIST_SONGS_TABLE, sqlFields);
 
             addSongToPlaylist = connection.prepareStatement(songToPlaylistStr);
             incrementSongPositions = connection.prepareStatement(incrementSongPositionsStr);
             removeSongFromPlaylist = connection.prepareStatement(removeSongFromPlaylistStr);
             decrementSongPositions = connection.prepareStatement(decrementSongPositionsStr);
             getPlaylistSongs = connection.prepareStatement(getPlaylistSongsStr);
-            createPlaylist("new playlist");
+            
         }
     
-        public static void createPlaylist(String name) throws SQLException {
+        protected static void createPlaylist(String name) throws SQLException {
             name = format(name, 255);
             String sqlCommand = "INSERT INTO "+PLAYLIST_TABLE+" (name) VALUES (\'"+name+"\')";
             connection.createStatement().execute(sqlCommand);
@@ -315,6 +326,100 @@ public class Database {
         public static class Playlist {
             public String name;
             public int playlistID;
+        }
+    }
+
+    
+    public static class Plugins {
+        
+        private static final String setAutoLaunchStr = "UPDATE "+PLUGINS_TABLE+
+                " SET autoLaunch=? WHERE pluginID=?";
+        
+        private static PreparedStatement setAutoLaunch;
+        
+        protected static void createPluginsTable() throws SQLException {
+            boolean tableExists = tableExists(PLUGINS_TABLE);
+            String sqlFields = "pluginID int NOT NULL AUTO INCREMENT,"
+                    + "name VARCHAR NOT NULL,"
+                    + "filePath VARCHAR NOT NULL,"
+                    + "autoLaunch VARCHAR(5) NOT NULL"
+                    + "PRIMARY KEY (pluginID),"
+                    + "UNIQUE (filePath)";
+            createTableIfNotExists(PLUGINS_TABLE, sqlFields);
+            setAutoLaunch = connection.prepareStatement(setAutoLaunchStr);
+            if (!tableExists) {
+                registerPlugin(APPLICATION, System.getProperty("java.class.path"));
+            }
+        }
+        
+        protected static void registerPlugin(String pluginName, String filepath) throws SQLException {
+            String sqlCommand = "INSERT INTO "+PLUGINS_TABLE+" (name, filepath, autoLaunch) "
+                    + "VALUES ("+pluginName+", "+filepath+", true)";
+            connection.createStatement().executeUpdate(sqlCommand);
+        }
+        
+        protected static ArrayList<Plugin> getAllPlugins() throws SQLException {
+            String sqlQuery = "SELECT * FROM "+PLUGINS_TABLE;
+            ResultSet results = connection.createStatement().executeQuery(sqlQuery);
+            ArrayList<Plugin> plugins = new ArrayList<Plugin>();
+            while (results.next()) {
+                Plugin plugin = new Plugin();
+                plugin.pluginID = results.getInt("pluginID");
+                plugin.name = results.getString("name");
+                plugin.filePath = results.getString("filePath");
+                plugin.autoLaunch = Boolean.valueOf(results.getString("autoLaunch"));
+                plugins.add(plugin);
+            }
+            return plugins;
+        }
+        
+        protected static void setAutoLaunch(boolean autoLaunch, int pluginID) throws SQLException {
+            setAutoLaunch.setString(1, Boolean.toString(autoLaunch));
+            setAutoLaunch.setInt(2, pluginID);
+            setAutoLaunch.executeUpdate();
+        }
+        
+        public static class Plugin {
+            public int pluginID;
+            public String name;
+            public String filePath;
+            public boolean autoLaunch;
+        }
+    }
+
+    public static class Settings {
+        
+        private static final String getSettingValueStr = "Select settingValue "
+                + "FROM "+SETTINGS_TABLE+" WHERE pluginID=? AND settingName=?";
+        
+        private static PreparedStatement getSettingValue;
+        
+        protected static void createSettingsTable() throws SQLException {
+            String sqlFields = "pluginID int NOT NULL,"
+                    + "settingName VARCHAR NOT NULL,"
+                    + "settingValue VARCHAR NOT NULL,"
+                    + "PRIMARY KEY (pluginID, settingName),"
+                    + "FOREIGN KEY (pluginID) REFERENCES "
+                    + PLUGINS_TABLE;
+            createTableIfNotExists(SETTINGS_TABLE, sqlFields);
+            getSettingValue = connection.prepareStatement(getSettingValueStr);
+        }
+        
+        protected static void addSetting(int pluginID, String settingName,
+                String settingValue) throws SQLException {
+            String sqlCommand = "INSERT INTO "+SETTINGS_TABLE+" (pluginID,"
+                    + "settingName, settingValue) VALUES ( "+pluginID+
+                    ", "+settingName+", "+settingValue+" )";
+            connection.createStatement().executeUpdate(sqlCommand);
+        }
+        
+        protected static String getSettingValue(int pluginID, String settingName)
+                throws SQLException {
+            getSettingValue.setInt(1, pluginID);
+            getSettingValue.setString(2, settingName);
+            ResultSet results = getSettingValue.executeQuery();
+            results.next();
+            return results.getString("settingValue");
         }
     }
 }
