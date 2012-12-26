@@ -61,8 +61,12 @@ public class Database {
     protected static boolean tableExists(String tableName) throws SQLException {
         ResultSet results = connection.getMetaData().getTables(
                 connection.getCatalog(), null, tableName , null);
-        results.next();
-        return results.getString("TABLE_NAME").equals(tableName);
+        if (results.next()) {
+            return results.getString("TABLE_NAME").equals(tableName);
+        }
+        else {
+            return false;
+        }
     }
     
     public static String format(String str, int length) {
