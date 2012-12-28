@@ -12,7 +12,7 @@ import org.junit.runners.Suite;
  * @author jordan
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({DatabaseTrackTests.class})
+@Suite.SuiteClasses({DatabaseTrackTests.class, JavafxMediaCodecTests.class})
 public class UnitTests {
 
     @BeforeClass

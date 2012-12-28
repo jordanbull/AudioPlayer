@@ -39,6 +39,7 @@ public class Database {
     
     protected static Connection connectToDatabase() throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
+        System.out.println("connecting to database at " + getDBLocation());
         Connection conn = DriverManager.getConnection("jdbc:h2:" + getDBLocation()
                 + ";DATABASE_TO_UPPER=FALSE", USERNAME, PASSWORD);
         connection = conn;
@@ -82,14 +83,14 @@ public class Database {
     public static class Library {
         
         private static final String songToLibraryStr = "INSERT INTO "+
-            LIBRARY_TABLE+" (title, artist, album, genre, length, fileType, "
+            LIBRARY_TABLE+" (title, artist, album, genre, length, songformat, "
                 + "year, filepath) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         private static final String getTrackByIDStr = "SELECT * FROM " + LIBRARY_TABLE
                 + " WHERE songID=?";
         private static final String getAllTracksOrderedStr = "SELECT * FROM " +
                 LIBRARY_TABLE + " ORDER BY ";
         private static final String editTrackStr = "UPDATE "+LIBRARY_TABLE+" SET"
-                + " title=?, artist=?, album=?, genre=?, length=?, fileType=?,"
+                + " title=?, artist=?, album=?, genre=?, length=?, songformat=?,"
                 + "year=? WHERE songID=?";
         
         private static PreparedStatement addSongToLibrary;
@@ -103,8 +104,8 @@ public class Database {
                     + "artist varchar(255) NOT NULL,"
                     + "album varchar(255) NOT NULL,"
                     + "genre varchar(255) NOT NULL,"
+                    + "songformat varchar(10) NOT NULL,"
                     + "length int NOT NULL,"
-                    + "fileType varchar(10) NOT NULL,"
                     + "year varchar(4),"
                     + "filepath varchar NOT NULL,"
                     + "UNIQUE (filepath),"
@@ -117,26 +118,26 @@ public class Database {
         }
 
         protected static void insertTrack(String title, String artist, String album,
-                String genre, int length, String fileType, String year, String filepath) throws SQLException {
+                String genre, int length, String songformat, String year, String filepath) throws SQLException {
             addSongToLibrary.setString(1, format(title, 255));
             addSongToLibrary.setString(2, format(artist, 255));
             addSongToLibrary.setString(3, format(album, 255));
             addSongToLibrary.setString(4, format(genre, 255));
             addSongToLibrary.setString(5, Integer.toString(length));
-            addSongToLibrary.setString(6, format(fileType, 10));
+            addSongToLibrary.setString(6, format(songformat, 10));
             addSongToLibrary.setString(7, format(year, 4));
             addSongToLibrary.setString(8, filepath);
             addSongToLibrary.executeUpdate();
         }
 
         protected static void editTrack(int sid, String title, String artist, String album,
-                String genre, int length, String fileType, String year) throws SQLException {
+                String genre, int length, String songformat, String year) throws SQLException {
             editTrack.setString(1, format(title, 255));
             editTrack.setString(2, format(artist, 255));
             editTrack.setString(3, format(artist, 255));
             editTrack.setString(4, format(genre, 255));
             editTrack.setString(5, Integer.toString(length));
-            editTrack.setString(6, format(fileType, 10));
+            editTrack.setString(6, format(songformat, 10));
             editTrack.setString(7, format(year, 4));
             editTrack.setInt(8, sid);
             editTrack.executeUpdate();
@@ -159,7 +160,7 @@ public class Database {
             t.genre = rs.getString("genre");
             t.length = rs.getInt("length");
             t.year = rs.getString("year");
-            t.fileType = rs.getString("fileType");
+            t.songformat = rs.getString("songformat");
             t.songID = songID;
             t.filepath = rs.getString("filepath");
             return t;
@@ -177,7 +178,7 @@ public class Database {
                 t.genre = rs.getString("genre");
                 t.length = rs.getInt("length");
                 t.year = rs.getString("year");
-                t.fileType = rs.getString("fileType");
+                t.songformat = rs.getString("songformat");
                 t.songID = rs.getInt("songID");
                 t.filepath = rs.getString("filepath");
                 tracks.add(t);
@@ -189,7 +190,7 @@ public class Database {
             public String album = "";
             public String artist = "";
             public String genre = "";
-            public String fileType = "";
+            public String songformat = "";
             public String year = "";
             public int length = 0;
             public int songID;
