@@ -1,9 +1,13 @@
 package jbull.audioplayer;
 
 import java.io.IOException;
+import java.net.URI;
+import java.sql.SQLException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import jbull.audioplayer.Codec.MetaData;
 import jbull.audioplayer.filter.Filter;
 
 /**
@@ -39,16 +43,15 @@ public abstract class Library extends AnchorPane implements Component {
     protected abstract void sort(Filter filter);
     
     /**
-     * Adds the track to the library and places it in according to the current
-     * filter.
-     * @param track 
-     */
-    protected abstract void insertTrack(TrackView track);
-    
-    /**
      * Empties out all of the {@link TrackView}s from the GUI of the library.
      */
     protected abstract void empty();
+    
+    /**
+     * Appends and item to the end of the library's view.
+     * @param node  the node to be appended to the library
+     */
+    public abstract void appendItem(Node node);
     
     /**
      * Adds a filter to the comboBox and sets up any other necessary information.
@@ -59,8 +62,52 @@ public abstract class Library extends AnchorPane implements Component {
     protected abstract boolean addFilter(Filter filter);
     
     /**
+     * Removes all of the filters from the filter combobox.
+     */
+    protected abstract void removeFilters();
+    
+    /**
+     * Sets the filter combobox to the selected index.
+     * @param index the index to set the filter combobox to
+     */
+    protected abstract void setFilter(int index);
+    
+    /**
+     * Returns the filter that is currently selected for the library.
+     * @return  the filter currently selected for the library
+     */
+    protected abstract Filter getFilter();
+    
+    /**
      * The method that should be called by default by the comboBox on change.
      */
     @FXML
     protected abstract void onFilterChange();
+    
+    
+    protected final static String SUCCESS = "Successfully added";
+    protected final static String EXISTS = "Already in library";
+    protected final static String ERROR = "Could not add";
+    protected static String addTrackToLibrary(URI uri) {
+        String path = uri.getPath();
+        try {
+            if (!Database.Library.trackPathExists(path)) {
+                String extension = path.substring(path.lastIndexOf('.')+1);
+                Codec codec = Codec.getAppropriateCodec(extension);
+                codec.load(uri);
+                MetaData metadata = codec.getMetaData();
+                Database.Library.insertTrack(metadata.title, metadata.artist,
+                        metadata.album, metadata.genre, metadata.length, extension,
+                        metadata.year, path);
+                return "Successfully added";
+            } else {
+                return "Already in library";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Could not add";
+        }
+    }
+    
+    
 }

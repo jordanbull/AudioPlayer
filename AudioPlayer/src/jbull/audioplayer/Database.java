@@ -92,10 +92,17 @@ public class Database {
         private static final String editTrackStr = "UPDATE "+LIBRARY_TABLE+" SET"
                 + " title=?, artist=?, album=?, genre=?, length=?, songformat=?,"
                 + "year=? WHERE songID=?";
+        private static final String trackPathExistsStr = "SELECT CAST("
+                +"CASE WHEN EXISTS(SELECT * FROM "+LIBRARY_TABLE+" where filepath"
+                +"=?) THEN 1 "
+                +"   ELSE 0 "
+                +"   END "
+                +"AS BIT)";
         
         private static PreparedStatement addSongToLibrary;
         private static PreparedStatement getTrackByID;
         private static PreparedStatement editTrack;
+        private static PreparedStatement trackPathExists;
         
         protected static void createTracksTable() throws SQLException {
             String sqlFields =
@@ -115,6 +122,7 @@ public class Database {
             addSongToLibrary = connection.prepareStatement(songToLibraryStr);
             getTrackByID = connection.prepareStatement(getTrackByIDStr);
             editTrack = connection.prepareStatement(editTrackStr);
+            trackPathExists = connection.prepareStatement(trackPathExistsStr);
         }
 
         protected static void insertTrack(String title, String artist, String album,
@@ -128,6 +136,13 @@ public class Database {
             addSongToLibrary.setString(7, format(year, 4));
             addSongToLibrary.setString(8, filepath);
             addSongToLibrary.executeUpdate();
+        }
+        
+        protected static boolean trackPathExists(String path) throws SQLException {
+            trackPathExists.setString(1, path);
+            ResultSet results = trackPathExists.executeQuery();
+            results.next();
+            return results.getBoolean(1);
         }
 
         protected static void editTrack(int sid, String title, String artist, String album,
@@ -166,7 +181,7 @@ public class Database {
             return t;
         }
 
-        protected static ArrayList<Track> getAllTracks(String orderBy) throws SQLException {
+        public static ArrayList<Track> getAllTracks(String orderBy) throws SQLException {
             String sqlQuery = getAllTracksOrderedStr + orderBy;
             ArrayList<Track> tracks = new ArrayList<Track>();
             ResultSet rs = connection.createStatement().executeQuery(sqlQuery);

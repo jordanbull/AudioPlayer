@@ -7,6 +7,7 @@ package jbull.audioplayer.filter;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import jbull.audioplayer.Library;
 import jbull.audioplayer.TrackView;
 
 /**
@@ -16,17 +17,11 @@ import jbull.audioplayer.TrackView;
 public interface Filter {
     
     /**
-     * Compares a {@link TrackView} instance to an object and either inserts it
-     * accordingly into the container returning true or does not and returns false.
-     * @param inserting the TrackView that needs to be inserted into the container
-     * @param existing  the existing object to compare the TrackView to
-     * @param container the container that inserting should be inserted into
-     * @param position  the integer position currently being checked in the container
-     * @return          true if the TrackView was inserted and false if it was
-     * not inserted
+     * Calls the database to get all songs and sorts them according to the
+     * filter and then inserts the sorted items into the library.
+     * @param library   the library that the sorted songs should be inserted into
      */
-    public boolean compareAndInsert(TrackView inserting, Node existing, 
-            ObservableList<Node> container, int position);
+    public void sortAndInsert(Library library);
     
     /**
      * Returns the name associated with this filter to be displayed in the

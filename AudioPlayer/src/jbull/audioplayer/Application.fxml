@@ -6,11 +6,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root type="javafx.scene.layout.Pane" xmlns:fx="http://javafx.com/fxml">
+<fx:root type="javafx.scene.layout.AnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0">
+    <BorderPane fx:id="center" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <top>
-        <MenuBar fx:id="menu">
+        <MenuBar fx:id="menu" maxHeight="-1.0" maxWidth="1.7976931348623157E308">
           <menus>
             <Menu mnemonicParsing="false" text="File">
               <items>
@@ -19,8 +19,8 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Library">
               <items>
-                <MenuItem mnemonicParsing="false" text="Add Songs" />
-                <MenuItem mnemonicParsing="false" text="Add Folder" />
+                <MenuItem mnemonicParsing="false" onAction="#addSongs" text="Add Songs" />
+                <MenuItem mnemonicParsing="false" onAction="#addDirectory" text="Add Folder" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Help">

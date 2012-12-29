@@ -1,12 +1,15 @@
 package jbull.audioplayer.codec;
 
-import java.net.URL;
-import javafx.collections.MapChangeListener;
-import javafx.collections.MapChangeListener.Change;
-import javafx.collections.ObservableMap;
+import java.io.File;
+import java.net.URI;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import jbull.audioplayer.Codec;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
 
 /**
  *
@@ -14,8 +17,8 @@ import jbull.audioplayer.Codec;
  */
 public class JavafxMediaCodec extends Codec {
 
-    Media media;
     MediaPlayer mediaPlayer;
+    URI uri;
     
     @Override
     protected Codec createInstance() {
@@ -24,12 +27,12 @@ public class JavafxMediaCodec extends Codec {
 
     @Override
     protected String[] getFileExtensionTypes() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new String[] {"aif", "aiff", "mp3", "wav"};
     }
 
     @Override
-    protected void load(URL url) {
-        media = new Media(url.toString());
+    protected void load(URI uri) {
+        this.uri = uri;
     }
 
     @Override
@@ -49,23 +52,30 @@ public class JavafxMediaCodec extends Codec {
 
     @Override
     protected MetaData getMetaData() {
-        ObservableMap<String, Object> map = media.getMetadata();
-        map.addListener(new ChangeListener());
-        while(true);
+        MetaData metaData = new MetaData();
+        try {
+            File file = new File(this.uri);
+            metaData.title = file.getName();
+            AudioFile f = AudioFileIO.read(file);
+            Tag tag = f.getTag();
+            AudioHeader header = f.getAudioHeader();
+            metaData.title = tag.getFirst(FieldKey.TITLE);
+            metaData.album = tag.getFirst(FieldKey.ALBUM);
+            metaData.artist = tag.getFirst(FieldKey.ARTIST);
+            metaData.year = tag.getFirst(FieldKey.YEAR);
+            metaData.length = header.getTrackLength();
+            if (metaData.title.equals(""))
+                metaData.title = file.getName();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return metaData;
     }
 
     @Override
     protected void setForPlaying() {
+        Media media = new Media(uri.toString());
         mediaPlayer = new MediaPlayer(media);
-    }
-    
-    private class ChangeListener implements MapChangeListener {
-
-        @Override
-        public void onChanged(Change change) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-        
     }
     
 }

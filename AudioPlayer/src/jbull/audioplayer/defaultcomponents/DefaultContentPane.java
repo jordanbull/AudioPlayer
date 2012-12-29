@@ -8,6 +8,7 @@ import java.net.URL;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import jbull.audioplayer.ContentPane;
+import jbull.audioplayer.Library;
 
 /**
  *
@@ -15,7 +16,7 @@ import jbull.audioplayer.ContentPane;
  */
 public class DefaultContentPane extends ContentPane {
 
-    @FXML AnchorPane leftPane;
+    @FXML Library libraryPane;
     @FXML AnchorPane rightPane;
     
     public DefaultContentPane() {
@@ -24,6 +25,11 @@ public class DefaultContentPane extends ContentPane {
     @Override
     public URL getFXML() {
         return this.getClass().getResource("DefaultContentPane.fxml");
+    }
+
+    @Override
+    public Library getLibraryPane() {
+        return libraryPane;
     }
     
 }

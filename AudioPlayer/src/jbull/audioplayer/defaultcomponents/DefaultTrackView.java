@@ -18,26 +18,27 @@ public class DefaultTrackView extends TrackView {
     @FXML Label lengthView;
     
     public DefaultTrackView(String title, String artist, String album, String
-            genre, int length, int songID, String fileType) {
-        super(title, artist, album, genre, length, songID, fileType);
+            genre, Integer length, Integer songID, String filePath, String fileType) {
+        super(title, artist, album, genre, length, songID, filePath, fileType);
     }
 
     @Override
     public void setInfo(String title, String artist, String album, String genre,
-                int length, int songID, String fileType) {
+                int length, int songID, String filePath, String fileType) {
         super.title = title;
         super.artist = artist;
         super.album = album;
         super.genre = genre;
         super.length = length;
         super.songID = songID;
+        super.filePath = filePath;
         super.fileType = fileType;
-        setGUI(title, artist, album, genre, length, songID, fileType);
+        setGUI(title, artist, album, genre, length, songID, filePath, fileType);
     }
 
     @Override
     public void setGUI(String title, String artist, String album, String genre,
-                int length, int songID, String fileType) {
+                int length, int songID, String filePath, String fileType) {
         titleView.setText(title);
         artistView.setText(artist);
         albumView.setText(album);
@@ -47,8 +48,7 @@ public class DefaultTrackView extends TrackView {
 
     @Override
     public URL getFXML() {
-        //TODO specify file
-        String FXMLname = null;
+        String FXMLname = "DefaultTrackView.fxml";
         return getClass().getResource(FXMLname);
     }
 }

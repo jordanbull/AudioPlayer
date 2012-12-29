@@ -136,4 +136,14 @@ public class DatabaseTrackTests {
         assertTrue(songIDs.get(1) == 4);
         assertTrue(songIDs.get(2) == 3);
     }
+    
+    @Test
+    public void testTrackPathExists() throws SQLException {
+        Database.Library.createTracksTable();
+        for (int i = 0; i < 4; i++) {
+            Database.Library.insertTrack("", "", "", "", 90, "", "", "fp"+i);
+        }
+        assertTrue(!Database.Library.trackPathExists("unusedpath"));
+        assertTrue(Database.Library.trackPathExists("fp1"));
+    }
 }

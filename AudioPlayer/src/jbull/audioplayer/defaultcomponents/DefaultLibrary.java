@@ -47,41 +47,12 @@ public class DefaultLibrary extends Library {
     @Override
     protected void sort(Filter filter) {
         empty();
-        int size = getNumTracks();
-        for (int i = 0; i < size; i++) {
-            TrackView track = tracks.get(i);
-            ObservableList<Node> items = list.getItems();
-            int numChildren = items.size();
-            for (int j = 0; j <= numChildren; j++){
-                if (j == numChildren) {
-                    filter.compareAndInsert(track, null, items, j);
-                    break;
-                } else if (filter.compareAndInsert(track, items.get(j), items, j)) {
-                    break;
-                }
-            }
-        }
+        filter.sortAndInsert(this);
     }
 
     @Override
     protected void empty() {
         list.getItems().clear();
-    }
-
-    @Override
-    protected void insertTrack(TrackView track) {
-        Filter filter = filterMap.get((String)filters.getSelectionModel().getSelectedItem());
-        tracks.add(track);
-        ObservableList<Node> items = list.getItems();
-        int numChildren = items.size();
-        for (int j = 0; j <= numChildren; j++){
-            if (j == numChildren) {
-                filter.compareAndInsert(track, null, items, j);
-                break;
-            } else if (filter.compareAndInsert(track, items.get(j), items, j)) {
-                break;
-            }
-        }
     }
 
     @Override
@@ -96,7 +67,27 @@ public class DefaultLibrary extends Library {
 
     @Override
     protected void onFilterChange() {
-        Filter filter = filterMap.get((String)filters.getSelectionModel().getSelectedItem());
+        Filter filter = getFilter();
         sort(filter);
+    }
+
+    @Override
+    public void appendItem(Node node) {
+        list.getItems().add(node);
+    }
+
+    @Override
+    protected void removeFilters() {
+        filters.getItems().clear();
+    }
+
+    @Override
+    protected Filter getFilter() {
+        return filterMap.get((String)filters.getSelectionModel().getSelectedItem());
+    }
+
+    @Override
+    protected void setFilter(int index) {
+        filters.getSelectionModel().select(index);
     }
 }

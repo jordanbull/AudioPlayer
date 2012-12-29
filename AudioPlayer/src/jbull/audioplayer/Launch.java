@@ -19,6 +19,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+import jbull.audioplayer.codec.JavafxMediaCodec;
+import jbull.audioplayer.defaultcomponents.DefaultTrackView;
+import jbull.audioplayer.filter.TitleFilter;
 
 /**
  *
@@ -72,6 +75,7 @@ public class Launch extends AnchorPane implements Component {
                 progressBar.setProgress(progress/totalItems);
             }
         }));
+        initializationTasks();
         loadInfo.setText("Launching Plugins...");
         launchPlugins();
         loadInfo.setText("Loading Songs...");
@@ -83,7 +87,25 @@ public class Launch extends AnchorPane implements Component {
     }
     
     private void initializationTasks() {
-        
+        //TODO
+        addDefaultCodecs();
+        setDefaultTrackView();
+        addFilters();
+    }
+    
+    private void addDefaultCodecs() {
+        Codec.addCodec(new JavafxMediaCodec());
+    }
+    private void setDefaultTrackView() {
+        //TODO
+        Application.trackViewClass = DefaultTrackView.class;
+    }
+    private void addFilters() {
+        //TODO
+        Library lib = Application.contentPane.getLibraryPane();
+        lib.removeFilters();
+        lib.addFilter(new TitleFilter());
+        lib.setFilter(0);
     }
     
     private void launchPlugins() {

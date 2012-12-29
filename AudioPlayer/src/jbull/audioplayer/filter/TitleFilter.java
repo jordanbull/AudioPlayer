@@ -4,8 +4,15 @@
  */
 package jbull.audioplayer.filter;
 
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jbull.audioplayer.Application;
+import jbull.audioplayer.Database;
+import jbull.audioplayer.Library;
 import jbull.audioplayer.TrackView;
 
 /**
@@ -15,31 +22,29 @@ import jbull.audioplayer.TrackView;
 public class TitleFilter implements Filter {
 
     @Override
-    public boolean compareAndInsert(TrackView inserting, Node existing, ObservableList<Node> container, int position) {
-            if (existing == null) {
-                container.add(position, inserting);
-                return true;
-            }
-            switch(inserting.getTitle().compareTo(((TrackView) existing).getTitle())){
-                case -1: 
-                    container.add(position, inserting);
-                    return true;
-                case  0:
-                    if (inserting.getArtist().compareTo(((TrackView) existing).getArtist()) <= 0) {
-                        container.add(position, inserting);
-                        return true;
-                    } else  {
-                        return false;
-                    }
-                case  1:
-                    return false;
-            }
-            return false;
+    public String getName() {
+        return "Title";
     }
 
     @Override
-    public String getName() {
-        return "Title";
+    public void sortAndInsert(Library library) {
+        Class trackViewClass = Application.getTrackViewClass();
+        try {
+            Constructor<TrackView> constr = trackViewClass.getDeclaredConstructor(String.class, String.class, String.class, String.class,
+                Integer.class, Integer.class, String.class, String.class);
+            ArrayList<Database.Library.Track> tracks = Database.Library.getAllTracks("title");
+            for (Database.Library.Track track : tracks) {
+                    library.appendItem(constr.newInstance(new Object[] {track.title, track.artist,
+                            track.album, track.genre, new Integer(track.length), new Integer(track.songID),
+                            track.filepath, track.songformat}));
+            }
+        } catch (SQLException | NoSuchMethodException | InstantiationException |
+                IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.getTargetException().printStackTrace();
+            
+        }
     }
     
 }
