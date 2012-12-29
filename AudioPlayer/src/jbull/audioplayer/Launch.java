@@ -21,6 +21,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 import jbull.audioplayer.codec.JavafxMediaCodec;
 import jbull.audioplayer.defaultcomponents.DefaultTrackView;
+import jbull.audioplayer.filter.ArtistFilter;
 import jbull.audioplayer.filter.TitleFilter;
 
 /**
@@ -105,19 +106,21 @@ public class Launch extends AnchorPane implements Component {
         Library lib = Application.contentPane.getLibraryPane();
         lib.removeFilters();
         lib.addFilter(new TitleFilter());
+        lib.addFilter(new ArtistFilter());
         lib.setFilter(0);
     }
     
     private void launchPlugins() {
-        
+        //TODO
     }
     
     private void fillLibrary() {
-        
+        Library lib = Application.contentPane.getLibraryPane();
+        lib.sort(lib.getFilter());
     }
     
     private void defaultSettings() {
-        
+        //TODO
     }
     
     private int getNumPlugins() {

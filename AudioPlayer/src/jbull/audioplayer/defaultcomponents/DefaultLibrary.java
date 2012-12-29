@@ -3,7 +3,6 @@ package jbull.audioplayer.defaultcomponents;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
@@ -65,7 +64,7 @@ public class DefaultLibrary extends Library {
         return true;
     }
 
-    @Override
+    @FXML @Override
     protected void onFilterChange() {
         Filter filter = getFilter();
         sort(filter);

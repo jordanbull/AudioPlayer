@@ -114,7 +114,6 @@ public class Application extends AnchorPane {
         }
         if (!files.isEmpty()) {
             addTracksToLibrary(files);
-            System.out.println(files.size());
         }
     }
 }

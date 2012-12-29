@@ -8,8 +8,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jbull.audioplayer.Application;
 import jbull.audioplayer.Database;
 import jbull.audioplayer.Library;
@@ -34,16 +32,13 @@ public class TitleFilter implements Filter {
                 Integer.class, Integer.class, String.class, String.class);
             ArrayList<Database.Library.Track> tracks = Database.Library.getAllTracks("title");
             for (Database.Library.Track track : tracks) {
-                    library.appendItem(constr.newInstance(new Object[] {track.title, track.artist,
-                            track.album, track.genre, new Integer(track.length), new Integer(track.songID),
-                            track.filepath, track.songformat}));
+                    library.appendItem(constr.newInstance(track.asObjectArray()));
             }
         } catch (SQLException | NoSuchMethodException | InstantiationException |
                 IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.getTargetException().printStackTrace();
-            
         }
     }
     

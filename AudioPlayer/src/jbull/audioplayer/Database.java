@@ -210,6 +210,12 @@ public class Database {
             public int length = 0;
             public int songID;
             public String filepath = "";
+            
+            public Object[] asObjectArray() {
+                return new Object[] {this.title, this.artist, this.album,
+                    this.genre, new Integer(this.length), new Integer(this.songID),
+                    this.filepath, this.songformat};
+            }
         }
     }
     

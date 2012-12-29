@@ -17,7 +17,7 @@
           <children>
             <Label alignment="CENTER" prefHeight="32.0" prefWidth="111.0" text="Sort By" GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <Label alignment="CENTER" prefHeight="30.0" prefWidth="111.0" text="Search" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <ComboBox fx:id="filters" maxWidth="1.7976931348623157E308" onAction="#onFilterChange" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0">
+            <ComboBox fx:id="filters" maxWidth="1.7976931348623157E308" onAction="#appendItem" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0">
               <items>
                 <FXCollections fx:factory="observableArrayList">
                   <String fx:value="Item 1" />
