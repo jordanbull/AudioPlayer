@@ -21,6 +21,10 @@ public class DefaultTrackView extends TrackView {
             genre, Integer length, Integer songID, String filePath, String fileType) {
         super(title, artist, album, genre, length, songID, filePath, fileType);
     }
+    
+    public DefaultTrackView(TrackView tv) {
+        super(tv);
+    }
 
     @Override
     public void setInfo(String title, String artist, String album, String genre,

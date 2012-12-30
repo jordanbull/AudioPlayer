@@ -1,14 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jbull.audioplayer.filter;
 
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import jbull.audioplayer.Library;
-import jbull.audioplayer.TrackView;
 
 /**
  *

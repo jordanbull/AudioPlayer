@@ -26,19 +26,13 @@ public class TitleFilter implements Filter {
 
     @Override
     public void sortAndInsert(Library library) {
-        Class trackViewClass = Application.getTrackViewClass();
         try {
-            Constructor<TrackView> constr = trackViewClass.getDeclaredConstructor(String.class, String.class, String.class, String.class,
-                Integer.class, Integer.class, String.class, String.class);
             ArrayList<Database.Library.Track> tracks = Database.Library.getAllTracks("title");
             for (Database.Library.Track track : tracks) {
-                    library.appendItem(constr.newInstance(track.asObjectArray()));
+                    library.appendItem(Application.createTrackView(track));
             }
-        } catch (SQLException | NoSuchMethodException | InstantiationException |
-                IllegalAccessException | IllegalArgumentException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.getTargetException().printStackTrace();
         }
     }
     

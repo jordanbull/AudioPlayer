@@ -1,8 +1,10 @@
 package jbull.audioplayer.defaultcomponents;
 
 import java.net.URL;
+import java.util.HashMap;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import jbull.audioplayer.Playlist;
 import jbull.audioplayer.TrackView;
@@ -14,7 +16,10 @@ import jbull.audioplayer.TrackView;
 public class DefaultPlaylist extends Playlist {
     
     @FXML ListView list;
+    @FXML ChoiceBox<String> choosePlaylist;
 
+    HashMap<String, Integer> playlistMapping = new HashMap<String, Integer>();
+    
     ObservableList tracks;
     
     int position = -1;
@@ -73,7 +78,7 @@ public class DefaultPlaylist extends Playlist {
     }
 
     @Override
-    public void addTrack(TrackView track, int index) {
+    protected void addTrack(TrackView track, int index) {
         if (index <= position) {
             position++;
         }
@@ -87,4 +92,38 @@ public class DefaultPlaylist extends Playlist {
         }
         tracks.remove(index);
     }
+
+    @Override
+    protected String getName() {
+        String s = (String) choosePlaylist.getSelectionModel().getSelectedItem();
+        return s;
+    }
+
+    @Override
+    protected void addPlaylist(String playlistName, int playlistID) {
+        playlistMapping.put(playlistName, playlistID);
+        choosePlaylist.getItems().add(playlistName);
+    }
+
+    @Override
+    protected void removePlaylist(String playlistName) {
+        playlistMapping.remove(playlistName);
+        choosePlaylist.getItems().remove(playlistName);
+    }
+
+    @Override
+    protected void addTrack(TrackView track) {
+        tracks.add(track);
+    }
+
+    @Override
+    protected void setPlaylist(int i) {
+        choosePlaylist.getSelectionModel().select(i);
+    }
+
+    @Override
+    protected void removeAllPlaylists() {
+        choosePlaylist.getItems().clear();
+    }
+
 }

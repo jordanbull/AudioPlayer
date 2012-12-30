@@ -1,10 +1,9 @@
 package jbull.audioplayer;
 
 import java.io.IOException;
-import javafx.fxml.FXML;
+import java.util.ArrayList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 
 /**
  *
@@ -24,4 +23,6 @@ public abstract class ContentPane extends AnchorPane implements Component {
     }
     
     public abstract Library getLibraryPane();
+    
+    public abstract ArrayList<Playlist> getPlaylistPanes();
 }

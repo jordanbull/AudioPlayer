@@ -1,13 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jbull.audioplayer;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -81,6 +80,7 @@ public class Launch extends AnchorPane implements Component {
         launchPlugins();
         loadInfo.setText("Loading Songs...");
         fillLibrary();
+        fillPlaylists();
         loadInfo.setText("Loading Default Settings");
         defaultSettings();
         AudioPlayer.stg.setScene(new Scene(application));
@@ -99,7 +99,7 @@ public class Launch extends AnchorPane implements Component {
     }
     private void setDefaultTrackView() {
         //TODO
-        Application.trackViewClass = DefaultTrackView.class;
+        Application.setTrackViewClass(DefaultTrackView.class);
     }
     private void addFilters() {
         //TODO
@@ -116,7 +116,26 @@ public class Launch extends AnchorPane implements Component {
     
     private void fillLibrary() {
         Library lib = Application.contentPane.getLibraryPane();
-        lib.sort(lib.getFilter());
+        lib.sort(lib.getFilter()); //TODO get default filter
+    }
+    
+    private void fillPlaylists() {
+        ArrayList<Playlist> playlists = Application.contentPane.getPlaylistPanes();
+        ArrayList<Database.Playlists.Playlist> dbps = null;
+        try {
+             dbps = Database.Playlists.getAllPlaylists();
+        } catch (SQLException ex) {
+            Logger.getLogger(Launch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        for (int i = 0; i < playlists.size(); i++) {
+            Playlist p = playlists.get(i);
+            p.removeAllPlaylists();
+            for (int j = 0; j < dbps.size(); j++) {
+                p.addPlaylist(dbps.get(j).name, dbps.get(j).playlistID);
+            }
+            p.setPlaylist(0); //TODO handle actual default playlists and load the correspondingsongs
+        }
+        
     }
     
     private void defaultSettings() {

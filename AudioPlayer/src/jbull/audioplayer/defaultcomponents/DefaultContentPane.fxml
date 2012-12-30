@@ -24,7 +24,7 @@
             <VBox prefHeight="200.0" prefWidth="100.0">
               <children>
                 <AnchorPane minHeight="50.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="NEVER" />
-                <DefaultPlaylist prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
+                <DefaultPlaylist fx:id="playlistPane" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
               </children>
             </VBox>
           </items>

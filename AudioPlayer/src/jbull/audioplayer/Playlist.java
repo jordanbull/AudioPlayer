@@ -1,13 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jbull.audioplayer;
 
 import java.io.IOException;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 
 /**
  *
@@ -24,6 +23,44 @@ public abstract class Playlist extends AnchorPane implements Component {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        final Playlist me = this;
+        
+        this.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                /* data is dragged over the target */
+                /* accept it only if it is not dragged from the same node 
+                 * and if it has a string data */
+                if (Application.draggedObject instanceof TrackView) {
+                    Dragboard db = event.getDragboard();
+                    String pName = ((TrackView) Application.draggedObject).playlist;
+                    boolean b = pName != null;
+                    if (b && pName.equals(me.getName())) { //moved from this playlist
+                        event.acceptTransferModes(TransferMode.MOVE);
+                    } else if (!db.hasString()) { // moved from library
+                        event.acceptTransferModes(TransferMode.COPY);
+                    }
+                    event.consume();
+                }
+            }
+        });
+        
+        this.setOnDragDropped(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                if (Application.draggedObject instanceof TrackView) {
+                    Dragboard db = event.getDragboard();
+                    if (db.hasString() && db.getString().equals(me.getName())) { //moved from this playlist
+                        event.acceptTransferModes(TransferMode.MOVE);
+                    } else if (!db.hasString()) { // moved from library
+                        TrackView trackView = Application.createTrackView((TrackView) Application.draggedObject);
+                        me.addAndSetTrack(trackView);
+                    }
+                    event.consume();
+                }
+                /* let the source know whether the string was successfully 
+                 * transferred and used */
+                event.setDropCompleted(true);
+             }
+        });
     }
     
     /**
@@ -67,13 +104,42 @@ public abstract class Playlist extends AnchorPane implements Component {
      */
     public abstract int numTracks();
     
+    
     /**
      * Adds track to the specified index pushing down all tracks at or below the
-     * index.
+     * index. This should also set the playlist field of the TrackView. The
+     * track's playlist field is also set to this playlist.
      * @param track the {@link TrackView} to be placed in the playlist
      * @param index the index the track is to be placed at
      */
-    public abstract void addTrack(TrackView track, int index);
+    public void addAndSetTrack(TrackView track, int index) {
+        track.setPlaylist(this.getName());
+        addTrack(track, index);
+    }
+    
+    /**
+     * Appends a track to the end of the playlist. The
+     * track's playlist field is also set to this playlist.
+     * @param track the track to append to the playlist
+     */
+    public void addAndSetTrack(TrackView track) {
+        track.setPlaylist(this.getName());
+        addTrack(track);
+    }
+    
+    /**
+     * Adds track to the specified index pushing down all tracks at or below the
+     * index. This should also set the playlist field of the TrackView.
+     * @param track the {@link TrackView} to be placed in the playlist
+     * @param index the index the track is to be placed at
+     */
+    protected abstract void addTrack(TrackView track, int index);
+    
+    /**
+     * Appends a track to the end of the playlist.
+     * @param track the track to append to the playlist
+     */
+    protected abstract void addTrack(TrackView track);
     
     /**
      * Removes the track at the specified index pushing all tracks below the
@@ -81,4 +147,19 @@ public abstract class Playlist extends AnchorPane implements Component {
      * @param index the index of the track to be removed 
      */
     public abstract void removeTrack(int index);
+    
+    /**
+     * Returns the name of the currently displayed playlist.
+     * @return  the name of the currently displayed playlist
+     */
+    protected abstract String getName();
+    
+    
+    protected abstract void addPlaylist(String playlistName, int playlistID);
+    
+    protected abstract void removePlaylist(String playlistName);
+    
+    protected abstract void setPlaylist(int i);
+    
+    protected abstract void removeAllPlaylists();
 }

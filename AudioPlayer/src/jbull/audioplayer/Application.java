@@ -2,11 +2,15 @@ package jbull.audioplayer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import jbull.audioplayer.Database.Library.Track;
 import jbull.audioplayer.defaultcomponents.DefaultContentPane;
 
 /**
@@ -29,7 +34,10 @@ public class Application extends AnchorPane {
     
     static ContentPane contentPane;
     
-    static Class trackViewClass;
+    private static Class trackViewClass;
+    private static Constructor trackViewObjConstr;
+    private static Constructor trackViewTrackViewConstr;
+    protected static Object draggedObject;
     
     protected Application() {
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("Application.fxml"));
@@ -114,6 +122,35 @@ public class Application extends AnchorPane {
         }
         if (!files.isEmpty()) {
             addTracksToLibrary(files);
+        }
+    }
+    
+    public static TrackView createTrackView(TrackView track) {
+        try {
+            return (TrackView) trackViewTrackViewConstr.newInstance(track);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public static TrackView createTrackView(Track track) {
+        try {
+            return (TrackView) trackViewObjConstr.newInstance(track.asObjectArray());
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    protected static void setTrackViewClass(Class trackView) {
+        try {
+            trackViewClass = trackView;
+            trackViewObjConstr = trackViewClass.getDeclaredConstructor(String.class, String.class, String.class, String.class,
+                        Integer.class, Integer.class, String.class, String.class);
+            trackViewTrackViewConstr = trackViewClass.getDeclaredConstructor(TrackView.class);
+        } catch (NoSuchMethodException | SecurityException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

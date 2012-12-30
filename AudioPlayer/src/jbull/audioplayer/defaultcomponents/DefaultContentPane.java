@@ -5,10 +5,12 @@
 package jbull.audioplayer.defaultcomponents;
 
 import java.net.URL;
+import java.util.ArrayList;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import jbull.audioplayer.ContentPane;
 import jbull.audioplayer.Library;
+import jbull.audioplayer.Playlist;
 
 /**
  *
@@ -18,6 +20,7 @@ public class DefaultContentPane extends ContentPane {
 
     @FXML Library libraryPane;
     @FXML AnchorPane rightPane;
+    @FXML Playlist playlistPane;
     
     public DefaultContentPane() {
         super();
@@ -30,6 +33,13 @@ public class DefaultContentPane extends ContentPane {
     @Override
     public Library getLibraryPane() {
         return libraryPane;
+    }
+
+    @Override
+    public ArrayList<Playlist> getPlaylistPanes() {
+        ArrayList<Playlist> playlists = new ArrayList<Playlist>();
+        playlists.add(playlistPane);
+        return playlists;
     }
     
 }

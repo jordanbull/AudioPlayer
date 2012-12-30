@@ -1,8 +1,14 @@
 package jbull.audioplayer;
 
 import java.io.IOException;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 
 /**
@@ -19,6 +25,7 @@ public abstract class TrackView extends AnchorPane implements Component {
     protected String fileType;
     protected String filePath;
     protected Node node;
+    protected String playlist;
     
     /**
      * Creates a new TrackView GUI node and returns its controller.
@@ -30,7 +37,6 @@ public abstract class TrackView extends AnchorPane implements Component {
      * @param songID    the ID number of the track in the application's database
      * @param filePath  the path to the file
      * @param fileType  the type of file that this track maps to
-     * @return          the controller of the newly created TrackView GUI node
      */
     public TrackView(String title, String artist, String album, String genre,
             Integer length, Integer songID, String filePath, String fileType) {
@@ -43,6 +49,34 @@ public abstract class TrackView extends AnchorPane implements Component {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        final TrackView me = this;
+        this.setOnDragDetected(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                Dragboard db = me.startDragAndDrop(TransferMode.ANY);
+                
+                /* Put a string on a dragboard */
+                ClipboardContent content = new ClipboardContent();
+                if (me.playlist != null) {
+                    content.putString(me.playlist);
+                } else {
+                    content.putHtml(""); // does this for the sake of working
+                }
+                db.setContent(content);
+                Application.draggedObject = me;
+                event.consume();
+            }
+        });
+        this.setOnDragDone(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                Application.draggedObject = null;
+                event.consume();
+            }
+        });
+    }
+    
+    public TrackView(TrackView tv) {
+        this(tv.title, tv.artist, tv.album, tv.genre, tv.length, tv.songID,
+                tv.filePath, tv.fileType);
     }
     
     /**
@@ -98,5 +132,8 @@ public abstract class TrackView extends AnchorPane implements Component {
     }
     public String getFileType() {
         return this.fileType;
+    }
+    public void setPlaylist(String playlist) {
+        this.playlist = playlist;
     }
 }
