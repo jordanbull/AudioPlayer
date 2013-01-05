@@ -71,6 +71,14 @@ public abstract class Playlist extends AnchorPane implements Component {
         });
     }
     
+    protected TrackView current() {
+        if (position >= 0 && position < tracks.size()) {
+            return tracks.get(position);
+        } else {
+            return first();
+        }
+    }
+    
     /**
      * Sets the position to -1 and calls next().
      * @return  the first track in the playlist if there is one or null if there
