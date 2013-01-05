@@ -1,6 +1,8 @@
 package jbull.audioplayer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.DragEvent;
@@ -14,10 +16,16 @@ import javafx.scene.layout.AnchorPane;
  */
 public abstract class Playlist extends AnchorPane implements Component {
     
+    private ArrayList<TrackView> tracks;
+    private int position = -1;
+    private String playlistName;
+    private HashMap<String, Integer> playlistMapping = new HashMap<String, Integer>();
+    
     public Playlist() {
         FXMLLoader fxmlLoader = new FXMLLoader(getFXML());
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        tracks = new ArrayList<TrackView>();
         try {
             fxmlLoader.load();
         } catch (IOException exception) {
@@ -52,7 +60,7 @@ public abstract class Playlist extends AnchorPane implements Component {
                         event.acceptTransferModes(TransferMode.MOVE);
                     } else if (!db.hasString()) { // moved from library
                         TrackView trackView = Application.createTrackView((TrackView) Application.draggedObject);
-                        me.addAndSetTrack(trackView);
+                        me.addTrack(trackView);
                     }
                     event.consume();
                 }
@@ -68,20 +76,37 @@ public abstract class Playlist extends AnchorPane implements Component {
      * @return  the first track in the playlist if there is one or null if there
      * are no tracks in the playlist
      */
-    public abstract TrackView first();
+    protected TrackView first() {
+        position = -1;
+        if (tracks.isEmpty()) {
+            return null;
+        } else {
+            return next();
+        }
+    }
     
     /**
      * Increments the position and returns the the next track. If there are no
      * more tracks, the position is set to -1 and null is returned.
      * @return  the next track if there is one and null if there is no next track
      */
-    public abstract TrackView next();
+    protected TrackView next() {
+        if (hasNext()) {
+            position ++;
+            return tracks.get(position);
+        } else {
+            position = -1;
+            return null;
+        }
+    }
     
     /**
      * Returns true if there is a next track or false if there is not.
      * @return true if there is a next track or false if there is not
      */
-    public abstract boolean hasNext();
+    protected boolean hasNext() {
+        return (position + 1) < tracks.size();
+    }
     
     /**
      * Decrements the position and returns the previous track if there is one.
@@ -89,20 +114,32 @@ public abstract class Playlist extends AnchorPane implements Component {
      * returned.
      * @return  the previous track if there is one or null otherwise
      */
-    public abstract TrackView prev();
+    protected TrackView prev() {
+        if (hasPrev()) {
+            position --;
+            return tracks.get(position);
+        } else {
+            position = -1;
+            return null;
+        }
+    }
     
     /**
      * Returns true if there is a previous track or false is there is not.
      * @return  true if there is a previous track or false is there is not
      */
-    public abstract boolean hasPrev();
+    protected boolean hasPrev() {
+        return position > 0 && position <= tracks.size();
+    }
     
     /**
      * Returns the number of tracks the library contains. Note: this is not
      * necessarily the number of {@link TrackView}s in the library GUI.
      * @return  the number of tracks in the library
      */
-    public abstract int numTracks();
+    protected int numTracks() {
+        return tracks.size();
+    }
     
     
     /**
@@ -112,9 +149,13 @@ public abstract class Playlist extends AnchorPane implements Component {
      * @param track the {@link TrackView} to be placed in the playlist
      * @param index the index the track is to be placed at
      */
-    public void addAndSetTrack(TrackView track, int index) {
+    public void addTrack(TrackView track, int index) {
+        if (index <= position) {
+            position++;
+        }
+        tracks.add(index, track);
         track.setPlaylist(this.getName());
-        addTrack(track, index);
+        addTrackToGUI(track, index);
     }
     
     /**
@@ -122,9 +163,10 @@ public abstract class Playlist extends AnchorPane implements Component {
      * track's playlist field is also set to this playlist.
      * @param track the track to append to the playlist
      */
-    public void addAndSetTrack(TrackView track) {
+    public void addTrack(TrackView track) {
+        tracks.add(track);
         track.setPlaylist(this.getName());
-        addTrack(track);
+        addTrackToGUI(track);
     }
     
     /**
@@ -133,33 +175,65 @@ public abstract class Playlist extends AnchorPane implements Component {
      * @param track the {@link TrackView} to be placed in the playlist
      * @param index the index the track is to be placed at
      */
-    protected abstract void addTrack(TrackView track, int index);
+    protected abstract void addTrackToGUI(TrackView track, int index);
     
     /**
      * Appends a track to the end of the playlist.
      * @param track the track to append to the playlist
      */
-    protected abstract void addTrack(TrackView track);
+    protected abstract void addTrackToGUI(TrackView track);
     
     /**
      * Removes the track at the specified index pushing all tracks below the
      * index up one.
      * @param index the index of the track to be removed 
      */
-    public abstract void removeTrack(int index);
+    public void removeTrack(int index) {
+        if (index <= position) {
+            position--;
+        }
+        tracks.remove(index);
+        removeTrackFromGUI(index);
+    }
+    
+    protected abstract void removeTrackFromGUI(int index);
     
     /**
      * Returns the name of the currently displayed playlist.
      * @return  the name of the currently displayed playlist
      */
-    protected abstract String getName();
+    public String getName() {
+        return playlistName;
+    }
     
     
-    protected abstract void addPlaylist(String playlistName, int playlistID);
+    protected void addPlaylist(String playlistName, int playlistID) {
+        playlistMapping.put(playlistName, playlistID);
+        addPlaylistToGUI(playlistName);
+    }
     
-    protected abstract void removePlaylist(String playlistName);
+    protected abstract void addPlaylistToGUI(String playlistName);
     
-    protected abstract void setPlaylist(int i);
+    protected void removePlaylist(String playlistName) {
+        playlistMapping.remove(playlistName);
+        removePlaylistFromGUI(playlistName);
+    }
     
-    protected abstract void removeAllPlaylists();
+    protected abstract void removePlaylistFromGUI(String playlistName);
+    
+    public void setPlaylist(String playlistName) {
+        if (!playlistMapping.containsKey(playlistName)) {
+            throw new RuntimeException();
+        }
+        this.playlistName = playlistName;
+        setPlaylistGUI(playlistName);
+    }
+    
+    protected abstract void setPlaylistGUI(String playlistName);
+    
+    protected void removeAllPlaylists() {
+        for (String playlist : playlistMapping.keySet()) {
+            removePlaylist(playlist);
+        }
+    }
 }

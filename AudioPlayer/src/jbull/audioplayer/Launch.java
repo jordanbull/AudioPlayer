@@ -133,7 +133,7 @@ public class Launch extends AnchorPane implements Component {
             for (int j = 0; j < dbps.size(); j++) {
                 p.addPlaylist(dbps.get(j).name, dbps.get(j).playlistID);
             }
-            p.setPlaylist(0); //TODO handle actual default playlists and load the correspondingsongs
+            p.setPlaylist("new playlist"); //TODO handle actual default playlists and load the correspondingsongs
         }
         
     }
