@@ -1,22 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jbull.audioplayer;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.SQLException;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.animation.KeyFrame;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.Timeline;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
+import jbull.util.ObservableTimer;
 
 /**
  *
@@ -26,20 +22,48 @@ public abstract class Deck extends AnchorPane implements Component {
     
     private Playlist playlist;
     private TrackView trackView;
-    private MediaPlayer mediaPlayer;
+    private Codec codec;
+    private boolean playing = false;
+    private ObservableTimer timer;
     
-    public Deck(Playlist playlist) {
+    public Deck() {
+        FXMLLoader fxmlLoader = new FXMLLoader(getFXML());
+        fxmlLoader.setRoot(this);
+        fxmlLoader.setController(this);
+        try {
+            fxmlLoader.load();
+            this.timer = new ObservableTimer() {
+                @Override
+                public Object onCompletion() {
+                    songFinished();
+                    return null;
+                }
+            };
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+    
+    protected void setPlaylist(Playlist playlist) {
         this.playlist = playlist;
     }
     
     public boolean load(TrackView track) {
         try {
             String path = Database.Library.getTrack(track.songID).filepath;
-            mediaPlayer = new MediaPlayer(new Media(path));
+            System.out.println(path);
+            codec = Codec.getAppropriateCodec(track.fileType);
+            codec.load(new URI(path));
             trackView = track;
             setGUI(track);
+            setTimer(track.length*1000);//must multiply by 100 since timer takes millis
+            attachTimerToProgress(timer.getElapsedMillis(), timer.getProgress());
             return true;
+        } catch (URISyntaxException ex) {
+            ex.printStackTrace();
+            return false;
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -47,42 +71,39 @@ public abstract class Deck extends AnchorPane implements Component {
     protected abstract void setGUI(TrackView track);
     
     public boolean play() {
-        if (trackView == null) {
-            trackView = playlist.current();
+        if (!playing) {
             if (trackView == null) {
-                return false;
+                trackView = playlist.current();
+                if (trackView == null) {
+                    return false;
+                }
             }
-        }
-        boolean load = load(trackView);
-        if (!load) {
+            boolean load = load(trackView);
+            if (!load) {
+                return load;
+            }
+            codec.play();
+            playing = true;
+            timer.play();
             return load;
         }
-        mediaPlayer.play();
-        startPlayTimer(trackView.length);
-        return load;
+        return true;
     }
     
-    protected void startPlayTimer(final int length) {
-        /*Task task = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                final long interval = 500; // interval of updates in milliseconds
-                final long numIntervals = length*1000;
-                final Task task = this;
-                new Timer().schedule(new TimerTask() {
-                    long time = 0;
-                    @Override
-                    public void run() {
-                        time += interval;
-                        task.updateProgress(time, time);
-                    }
-                }, interval, interval);
-                return null;
-            }
-        };
-        setTimerToSong(task.progressProperty());*/
+    protected void setTimer(long length) {
+        //TODO
+        timer.setLength(length);
+        
     }
     
-    protected abstract void setTimerToSong(ReadOnlyDoubleProperty progress);
+    public boolean isPlaying() {
+        return playing;
+    }
+    
+    private void songFinished() {
+        //TODO
+    }
+    
+    protected abstract void attachTimerToProgress(ObservableValue<java.lang.Number> elapsedMillis, ObservableValue<java.lang.Number> progress);
     
 }

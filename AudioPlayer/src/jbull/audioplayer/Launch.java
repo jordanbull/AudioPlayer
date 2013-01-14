@@ -7,10 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,13 +15,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Duration;
 import jbull.audioplayer.codec.JavafxMediaCodec;
 import jbull.audioplayer.defaultcomponents.DefaultTrackView;
 import jbull.audioplayer.filter.ArtistFilter;
 import jbull.audioplayer.filter.TitleFilter;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.event.Event;
+import javafx.stage.Stage;
 
 /**
  *
@@ -78,8 +75,12 @@ public class Launch extends AnchorPane implements Component {
         task.setOnSucceeded(new EventHandler() {
             @Override
             public void handle(Event t) {
-                AudioPlayer.stg.setScene(new Scene(application));
-                AudioPlayer.stg.show();
+                Stage stg = AudioPlayer.stg;
+                stg.setHeight(560);
+                stg.setWidth(800);
+                stg.setResizable(true);
+                stg.setScene(new Scene(application));
+                stg.show();
             }
         });
         new Thread(task).start();
@@ -144,20 +145,30 @@ public class Launch extends AnchorPane implements Component {
         }
 
         private void fillPlaylists() {
-            ArrayList<Playlist> playlists = Application.contentPane.getPlaylistPanes();
+            ArrayList<Playlist> playlistPanes = Application.contentPane.getPlaylistPanes();
             ArrayList<Database.Playlists.Playlist> dbps = null;
             try {
                  dbps = Database.Playlists.getAllPlaylists();
             } catch (SQLException ex) {
                 Logger.getLogger(Launch.class.getName()).log(Level.SEVERE, null, ex);
             }
-            for (int i = 0; i < playlists.size(); i++) {
-                Playlist p = playlists.get(i);
-                p.removeAllPlaylists();
+            for (int i = 0; i < playlistPanes.size(); i++) {
+                Playlist playlistPane = playlistPanes.get(i);
+                playlistPane.removeAllPlaylists();
                 for (int j = 0; j < dbps.size(); j++) {
-                    p.addPlaylist(dbps.get(j).name, dbps.get(j).playlistID);
+                    playlistPane.addPlaylist(dbps.get(j).name, dbps.get(j).playlistID);
                 }
-                p.setPlaylist("new playlist"); //TODO handle actual default playlists and load the correspondingsongs
+                playlistPane.setPlaylist("new playlist"); //TODO handle actual default playlists and load the correspondingsongs
+                try {
+                    ArrayList<Integer> trackIDs =
+                        Database.Playlists.getPlaylistSongs(playlistPane.getCurrentPlaylistID());
+                    for (Integer trackID : trackIDs) {
+                        playlistPane.restoreTrackFromDatabase(Application.createTrackView(Database.Library.getTrack(trackID)));
+                    }
+                } catch (SQLException e) {
+                    //TODO inform user that there was an error loading the playlist songs
+                    e.printStackTrace();
+                }
             }
 
         }

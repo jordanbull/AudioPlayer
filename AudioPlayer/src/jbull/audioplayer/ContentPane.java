@@ -17,6 +17,7 @@ public abstract class ContentPane extends AnchorPane implements Component {
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
+            linkDecksToPlaylists();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
@@ -25,4 +26,13 @@ public abstract class ContentPane extends AnchorPane implements Component {
     public abstract Library getLibraryPane();
     
     public abstract ArrayList<Playlist> getPlaylistPanes();
+    public abstract ArrayList<Deck> getDeckPanes();
+    
+    protected void linkDecksToPlaylists() {
+        ArrayList<Playlist> playlists = getPlaylistPanes();
+        ArrayList<Deck> decks = getDeckPanes();
+        for (int i = 0; i < decks.size(); i++) {
+            decks.get(i).setPlaylist(playlists.get(i));
+        }
+    }
 }

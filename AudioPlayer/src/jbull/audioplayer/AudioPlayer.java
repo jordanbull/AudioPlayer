@@ -1,10 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jbull.audioplayer;
 
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -20,7 +15,9 @@ public class AudioPlayer extends javafx.application.Application {
         Application application = new Application();
         Launch launcher = new Launch(application);
         stg = stage;
-        stage.setScene(new Scene(launcher));
+        Scene s = new Scene(launcher);
+        stage.setScene(s);
+        stage.setResizable(false);
         stage.show();
         launcher.launch();
     }

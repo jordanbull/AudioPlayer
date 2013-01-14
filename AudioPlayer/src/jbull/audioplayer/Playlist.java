@@ -1,8 +1,11 @@
 package jbull.audioplayer;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.DragEvent;
@@ -35,14 +38,10 @@ public abstract class Playlist extends AnchorPane implements Component {
         
         this.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
-                /* data is dragged over the target */
-                /* accept it only if it is not dragged from the same node 
-                 * and if it has a string data */
                 if (Application.draggedObject instanceof TrackView) {
                     Dragboard db = event.getDragboard();
-                    String pName = ((TrackView) Application.draggedObject).playlist;
-                    boolean b = pName != null;
-                    if (b && pName.equals(me.getName())) { //moved from this playlist
+                    TrackView draggedTrack = ((TrackView) Application.draggedObject);
+                    if (draggedTrack.isInPlaylist() && draggedTrack.getPlaylistInfo().getName().equals(me.getName())) { //moved from this playlist
                         event.acceptTransferModes(TransferMode.MOVE);
                     } else if (!db.hasString()) { // moved from library
                         event.acceptTransferModes(TransferMode.COPY);
@@ -64,8 +63,6 @@ public abstract class Playlist extends AnchorPane implements Component {
                     }
                     event.consume();
                 }
-                /* let the source know whether the string was successfully 
-                 * transferred and used */
                 event.setDropCompleted(true);
              }
         });
@@ -161,9 +158,18 @@ public abstract class Playlist extends AnchorPane implements Component {
         if (index <= position) {
             position++;
         }
+        for (int i = index; i < tracks.size(); i++) {
+            tracks.get(i).getPlaylistInfo().setPosition(i+1);
+        }
         tracks.add(index, track);
-        track.setPlaylist(this.getName());
+        track.setPlaylist(this, index);
         addTrackToGUI(track, index);
+        try {
+            Database.Playlists.addSongToPlaylist(this.getCurrentPlaylistID(), track.getSongID(), index);
+        } catch (SQLException ex) {
+            //TODO inform user of error
+            Logger.getLogger(Playlist.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**
@@ -172,8 +178,12 @@ public abstract class Playlist extends AnchorPane implements Component {
      * @param track the track to append to the playlist
      */
     public void addTrack(TrackView track) {
+        addTrack(track, this.numTracks());
+    }
+    
+    protected void restoreTrackFromDatabase(TrackView track) {
         tracks.add(track);
-        track.setPlaylist(this.getName());
+        track.setPlaylist(this, this.numTracks());
         addTrackToGUI(track);
     }
     
@@ -197,11 +207,27 @@ public abstract class Playlist extends AnchorPane implements Component {
      * @param index the index of the track to be removed 
      */
     public void removeTrack(int index) {
+        try {
+            Database.Playlists.removeSongFromPlaylist(this.getCurrentPlaylistID(), index, this.numTracks());
+        } catch (SQLException e) {
+            //TODO inform user that the change will not be reflected in the database.
+            //TODO reflect changes to all playlist guis
+            e.printStackTrace();
+        }
         if (index <= position) {
             position--;
         }
         tracks.remove(index);
+        for (int i = index; i < tracks.size(); i++) {
+            tracks.get(i).getPlaylistInfo().setPosition(i);
+        }
         removeTrackFromGUI(index);
+        
+    }
+    
+    public void removeTrack(TrackView track) {
+        System.out.println(tracks.indexOf(track));
+        removeTrack(tracks.indexOf(track));
     }
     
     protected abstract void removeTrackFromGUI(int index);
@@ -243,5 +269,9 @@ public abstract class Playlist extends AnchorPane implements Component {
         for (String playlist : playlistMapping.keySet()) {
             removePlaylist(playlist);
         }
+    }
+    
+    protected int getCurrentPlaylistID() {
+        return playlistMapping.get(this.getName());
     }
 }

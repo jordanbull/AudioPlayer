@@ -3,7 +3,6 @@ package jbull.audioplayer;
 import java.io.IOException;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -24,8 +23,7 @@ public abstract class TrackView extends AnchorPane implements Component {
     protected int songID;
     protected String fileType;
     protected String filePath;
-    protected Node node;
-    protected String playlist;
+    private PlaylistInfo playlistInfo = null;
     
     /**
      * Creates a new TrackView GUI node and returns its controller.
@@ -49,6 +47,12 @@ public abstract class TrackView extends AnchorPane implements Component {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        setOnDragDetected();
+        setOnDragDone();
+        setOnDragOver();
+        setOnDragCompleted();
+    }
+    private void setOnDragDetected() {
         final TrackView me = this;
         this.setOnDragDetected(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
@@ -56,8 +60,8 @@ public abstract class TrackView extends AnchorPane implements Component {
                 
                 /* Put a string on a dragboard */
                 ClipboardContent content = new ClipboardContent();
-                if (me.playlist != null) {
-                    content.putString(me.playlist);
+                if (me.isInPlaylist()) {
+                    content.putString(me.getPlaylistInfo().getName());
                 } else {
                     content.putHtml(""); // does this for the sake of working
                 }
@@ -66,11 +70,59 @@ public abstract class TrackView extends AnchorPane implements Component {
                 event.consume();
             }
         });
+    }
+    private void setOnDragDone() {
+        final TrackView me = this;
         this.setOnDragDone(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 Application.draggedObject = null;
+                if (me.isInPlaylist()) {
+                    me.getPlaylistInfo().playlist.removeTrack(me);
+                }
                 event.consume();
             }
+        });
+    }
+    private void setOnDragOver() {
+        this.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                if (Application.draggedObject instanceof TrackView) {
+                    event.acceptTransferModes(TransferMode.ANY);
+                    event.consume();
+                }
+            }
+        });
+    }
+    private void setOnDragCompleted() {
+        final TrackView me = this;
+        this.setOnDragDropped(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                if (Application.draggedObject instanceof TrackView) {
+                    TrackView draggedTrack = (TrackView) Application.draggedObject;
+                    if (!me.isInPlaylist()) { //dragged to a library track
+                        //do nothing
+                        return;
+                    } else if (draggedTrack.isInPlaylist()) { //moved from a playlist
+                        if (draggedTrack.getPlaylistInfo().getPlaylist()==(me.getPlaylistInfo().getPlaylist())) {//moved from this playlist
+                            
+                            event.acceptTransferModes(TransferMode.MOVE);
+                            TrackView trackView = Application.createTrackView(draggedTrack);
+                            Playlist playlist = me.getPlaylistInfo().getPlaylist();
+                            playlist.addTrack(trackView, me.getPlaylistInfo().getPosition());
+                        } else { //moved from another playlist
+                            //TODO
+                        }
+                    } else { // not dragged from playlist
+                        event.acceptTransferModes(TransferMode.COPY);
+                        TrackView trackView = Application.createTrackView(draggedTrack);
+                        me.getPlaylistInfo().getPlaylist().addTrack(trackView, me.getPlaylistInfo().getPosition());
+                    }
+                    event.consume();
+                }
+                /* let the source know whether the string was successfully 
+                 * transferred and used */
+                event.setDropCompleted(true);
+             }
         });
     }
     
@@ -133,7 +185,35 @@ public abstract class TrackView extends AnchorPane implements Component {
     public String getFileType() {
         return this.fileType;
     }
-    public void setPlaylist(String playlist) {
-        this.playlist = playlist;
+    public void setPlaylist(Playlist playlist, int position) {
+        this.playlistInfo = new PlaylistInfo(playlist, position);
+    }
+    public PlaylistInfo getPlaylistInfo() {
+        return playlistInfo;
+    }
+    public boolean isInPlaylist() {
+        return playlistInfo != null;
+    }
+    
+    public static class PlaylistInfo {
+        private Playlist playlist;
+        private int position;
+        
+        public PlaylistInfo(Playlist playlist, int position) {
+            this.playlist = playlist;
+            this.position = position;
+        }
+        public String getName() {
+            return this.playlist.getName();
+        }
+        public int getPosition() {
+            return this.position;
+        }
+        protected void setPosition(int position) {
+            this.position = position;
+        }
+        protected Playlist getPlaylist() {
+            return this.playlist;
+        }
     }
 }

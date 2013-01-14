@@ -88,8 +88,11 @@ public abstract class Library extends AnchorPane implements Component {
     protected final static String SUCCESS = "Successfully added";
     protected final static String EXISTS = "Already in library";
     protected final static String ERROR = "Could not add";
+    
     protected static String addTrackToLibrary(URI uri) {
-        String path = uri.getPath();
+        String path = uri.toString();
+        //System.out.println(path);
+        //System.out.println(uri.toString());
         try {
             if (!Database.Library.trackPathExists(path)) {
                 String extension = path.substring(path.lastIndexOf('.')+1);

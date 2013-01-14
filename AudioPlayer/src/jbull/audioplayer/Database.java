@@ -228,17 +228,17 @@ public class Database {
                 PLAYLIST_SONGS_TABLE+" SET position=( position + 1 ) WHERE "
                 + "pid=? AND position>=?";
         private static final String removeSongFromPlaylistStr = "DELETE FROM " +
-                PLAYLIST_SONGS_TABLE+" WHERE pid=? AND sid=?";
-        private static final String decrementSongPositionsStr = "UPDATE "+
+                PLAYLIST_SONGS_TABLE+" WHERE pid=? AND position=?";
+        private static final String decrementSongPositionStr = "UPDATE "+
                 PLAYLIST_SONGS_TABLE+" SET position=( position - 1 ) WHERE "
-                + "pid=? AND position>?";
+                + "pid=? AND position=? ";
         private static final String getPlaylistSongsStr = "SELECT sid FROM " +
                 PLAYLIST_SONGS_TABLE+" WHERE pid=? ORDER BY position";
         
         private static PreparedStatement addSongToPlaylist;
         private static PreparedStatement incrementSongPositions;
         private static PreparedStatement removeSongFromPlaylist;
-        private static PreparedStatement decrementSongPositions;
+        private static PreparedStatement decrementSongPosition;
         private static PreparedStatement getPlaylistSongs;
         
         protected static void createPlaylistsTable() throws SQLException {
@@ -266,7 +266,7 @@ public class Database {
             addSongToPlaylist = connection.prepareStatement(songToPlaylistStr);
             incrementSongPositions = connection.prepareStatement(incrementSongPositionsStr);
             removeSongFromPlaylist = connection.prepareStatement(removeSongFromPlaylistStr);
-            decrementSongPositions = connection.prepareStatement(decrementSongPositionsStr);
+            decrementSongPosition = connection.prepareStatement(decrementSongPositionStr);
             getPlaylistSongs = connection.prepareStatement(getPlaylistSongsStr);
             
         }
@@ -307,14 +307,16 @@ public class Database {
             addSongToPlaylist.execute();
         }
         
-        protected static void removeSongFromPlaylist(int playlistID, int position) throws SQLException {
+        protected static void removeSongFromPlaylist(int playlistID, int position, int numSongs) throws SQLException {
             removeSongFromPlaylist.setInt(1, playlistID);
             removeSongFromPlaylist.setInt(2, position);
             removeSongFromPlaylist.executeUpdate();
             
-            decrementSongPositions.setInt(1, playlistID);
-            decrementSongPositions.setInt(2, position);
-            decrementSongPositions.executeUpdate();
+            for (int i = position; i < numSongs; i++) {
+                decrementSongPosition.setInt(1, playlistID);
+                decrementSongPosition.setInt(2, i);
+                decrementSongPosition.executeUpdate();
+            }
         }
         
         protected static void removeSongFromAllPlaylists(int songID) throws SQLException {
@@ -322,7 +324,11 @@ public class Database {
                     +" WHERE sid="+songID;
             ResultSet results = connection.createStatement().executeQuery(sqlQuery);
             while (results.next()) {
-                removeSongFromPlaylist(results.getInt("pid"), results.getInt("position"));
+                sqlQuery = "SELECT COUNT(*) AS num FROM "+PLAYLIST_SONGS_TABLE+" WHERE pid="+results.getInt("pid");
+                ResultSet r = connection.createStatement().executeQuery(sqlQuery);
+                r.next();
+                int totalSongs = r.getInt("num");
+                removeSongFromPlaylist(results.getInt("pid"), results.getInt("position"), totalSongs);
             }
         }
         
