@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -26,6 +27,7 @@ public class NewPlaylistDialog extends AnchorPane implements Component {
     
     @FXML TextField nameField;
     @FXML Label message;
+    @FXML Button commit;
     Stage stage;
     ArrayList<String> allNames;
     
@@ -36,6 +38,7 @@ public class NewPlaylistDialog extends AnchorPane implements Component {
         try {
             fxmlLoader.load();
             this.allNames = allNames;
+            commit.setText("Create");
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
