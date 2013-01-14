@@ -129,7 +129,7 @@ public class DatabaseTrackTests {
         assertTrue(songIDs.get(2) == 2);
         assertTrue(songIDs.get(3) == 3);
         //the following makes sure the order is shifted back on a deletion in the middle
-        Database.Playlists.removeSongFromPlaylist(playlistID, 2);
+        Database.Playlists.removeSongFromPlaylist(playlistID, 2, 4);
         songIDs = Database.Playlists.getPlaylistSongs(playlistID);
         assertTrue(songIDs.size() == 3);
         assertTrue(songIDs.get(0) == 1);

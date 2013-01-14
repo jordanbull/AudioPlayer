@@ -2,6 +2,8 @@ package jbull.audioplayer.codec;
 
 import java.io.File;
 import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import jbull.audioplayer.Codec;
@@ -22,6 +24,7 @@ public class JavafxMediaCodec extends Codec {
     
     @Override
     protected Codec createInstance() {
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF); 
         return new JavafxMediaCodec();
     }
 
@@ -33,11 +36,12 @@ public class JavafxMediaCodec extends Codec {
     @Override
     protected void load(URI uri) {
         this.uri = uri;
+        mediaPlayer = new MediaPlayer(new Media(uri.toString()));
     }
 
     @Override
     protected void play() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        mediaPlayer.play();
     }
 
     @Override

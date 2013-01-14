@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import jbull.audioplayer.ContentPane;
+import jbull.audioplayer.Deck;
 import jbull.audioplayer.Library;
 import jbull.audioplayer.Playlist;
 
@@ -21,6 +22,7 @@ public class DefaultContentPane extends ContentPane {
     @FXML Library libraryPane;
     @FXML AnchorPane rightPane;
     @FXML Playlist playlistPane;
+    @FXML Deck deckPane;
     
     public DefaultContentPane() {
         super();
@@ -40,6 +42,13 @@ public class DefaultContentPane extends ContentPane {
         ArrayList<Playlist> playlists = new ArrayList<Playlist>();
         playlists.add(playlistPane);
         return playlists;
+    }
+
+    @Override
+    public ArrayList<Deck> getDeckPanes() {
+        ArrayList<Deck> decks = new ArrayList<Deck>();
+        decks.add(deckPane);
+        return decks;
     }
     
 }

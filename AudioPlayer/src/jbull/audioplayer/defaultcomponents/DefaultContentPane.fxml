@@ -6,15 +6,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import jbull.audioplayer.defaultcomponents.*?>
+<?import jbull.audioplayer.defaultcomponents.DefaultDeck?>
 <?import jbull.audioplayer.defaultcomponents.DefaultLibrary?>
 <?import jbull.audioplayer.defaultcomponents.DefaultPlaylist?>
 <?scenebuilder-classpath-element ../../../../dist/AudioPlayer.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" xmlns:fx="http://javafx.com/fxml">
+<fx:root type="javafx.scene.layout.AnchorPane" prefHeight="500.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml">
   <children>
     <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <center>
-        <SplitPane dividerPositions="0.36789297658862874" focusTraversable="true" prefHeight="400.0" prefWidth="600.0">
+        <SplitPane dividerPositions="0.29949874686716793" focusTraversable="true" prefHeight="400.0" prefWidth="600.0">
           <items>
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
               <children>
@@ -23,7 +24,7 @@
             </AnchorPane>
             <VBox prefHeight="200.0" prefWidth="100.0">
               <children>
-                <AnchorPane minHeight="50.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="NEVER" />
+                <DefaultDeck fx:id="deckPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
                 <DefaultPlaylist fx:id="playlistPane" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
               </children>
             </VBox>

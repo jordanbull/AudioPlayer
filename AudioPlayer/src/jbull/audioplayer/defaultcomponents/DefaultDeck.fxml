@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="songTitle" minHeight="-1.0" minWidth="185.0" prefHeight="127.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <ProgressBar fx:id="progressBar" layoutY="53.0" prefWidth="572.0" progress="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+    <HBox alignment="TOP_CENTER" fillHeight="true" layoutY="64.0" minWidth="185.0" prefHeight="49.0" prefWidth="601.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+      <children>
+        <Region prefHeight="200.0" prefWidth="200.0" />
+        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="60.0" mnemonicParsing="false" text="&lt;&lt;" HBox.hgrow="NEVER" />
+        <Button fx:id="playButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="60.0" mnemonicParsing="false" onAction="#play" text="&gt;" HBox.hgrow="NEVER" />
+        <Button fx:id="nextButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="60.0" mnemonicParsing="false" text="&gt;&gt;" HBox.hgrow="NEVER" />
+        <Region prefHeight="200.0" prefWidth="200.0" />
+      </children>
+    </HBox>
+    <Label fx:id="songTitleLabel" alignment="CENTER" layoutY="4.0" prefHeight="49.0" prefWidth="572.0" text="Label" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Label>
+  </children>
+</fx:root>
