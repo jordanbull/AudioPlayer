@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,9 +13,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
@@ -31,6 +37,9 @@ public class Application extends AnchorPane {
 
     @FXML MenuBar menu;
     @FXML BorderPane center;
+    
+    @FXML Menu deletePlaylistMenu;
+    @FXML Menu renamePlaylistMenu;
     
     static ContentPane contentPane;
     
@@ -50,6 +59,14 @@ public class Application extends AnchorPane {
             throw new RuntimeException(exception);
         }
     }
+    
+    @FXML protected void menuAddSongs() {addSongs();}
+    @FXML protected void menuAddDirectory() {addDirectory();}
+    @FXML protected void menuCreateNewPlaylist() {createNewPlaylist();}
+    @FXML protected void menuOnShowDeletePlaylist(){onShowDeletePlaylist();}
+    @FXML protected void menuOnShowRenamePlaylist(){onShowRenamePlaylist();}
+    
+    
     private ContentPane getDefaultContentPane() {
         //TODO select layout desired
         return new DefaultContentPane();
@@ -83,7 +100,6 @@ public class Application extends AnchorPane {
         return trackViewClass;
     }
     
-    @FXML
     protected void addSongs() {
         FileChooser fileChooser = new FileChooser();
         ObservableList<ExtensionFilter> filters = fileChooser.getExtensionFilters();
@@ -100,7 +116,6 @@ public class Application extends AnchorPane {
         }
     }
     
-    @FXML
     protected void addDirectory() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File directory = directoryChooser.showDialog(null);
@@ -153,4 +168,68 @@ public class Application extends AnchorPane {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    private void createNewPlaylist() {
+        try {
+            final ArrayList<String> names = new ArrayList<String>();
+            for(Database.Playlists.Playlist playlist : Database.Playlists.getAllPlaylists()) {
+                names.add(playlist.name);
+            }
+            new NewPlaylistDialog(names).show();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            //TODO alert user
+        }
+    }
+    private void onShowDeletePlaylist() {
+        deletePlaylistMenu.getItems().clear();
+        try {
+        for(Database.Playlists.Playlist playlist : Database.Playlists.getAllPlaylists()) {
+            MenuItem mnItem = new MenuItem(playlist.name);
+            mnItem.setOnAction(new EventHandler() {
+                @Override
+                public void handle(Event t) {
+                    String playlistName = ((MenuItem)t.getSource()).getText();
+                    try {
+                        for (Playlist p : contentPane.getPlaylistPanes()) {
+                            p.removePlaylist(playlistName);
+                        }
+                        Database.Playlists.removePlaylist(playlistName);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+                        //TODO inform user that deletion did not work
+                    }
+                }
+            });
+            deletePlaylistMenu.getItems().add(mnItem);
+        }
+        } catch (SQLException e) {
+            //TODO handle the sql exception and inform user
+            e.printStackTrace();
+        }
+    }
+    private void onShowRenamePlaylist() {
+        renamePlaylistMenu.getItems().clear();
+        try {
+            final ArrayList<String> names = new ArrayList<String>();
+            for(Database.Playlists.Playlist playlist : Database.Playlists.getAllPlaylists()) {
+                names.add(playlist.name);
+            }
+            for(final String name : names) {
+                MenuItem mnItem = new MenuItem(name);
+                mnItem.setOnAction(new EventHandler() {
+                    @Override
+                    public void handle(Event t) {
+                        String playlistName = ((MenuItem)t.getSource()).getText();
+                        new RenamePlaylistDialog(name, names).show();
+                    }
+                });
+                renamePlaylistMenu.getItems().add(mnItem);
+            }
+        } catch (SQLException e) {
+            //TODO handle the sql exception and inform user
+            e.printStackTrace();
+        }
+    }
+    
 }

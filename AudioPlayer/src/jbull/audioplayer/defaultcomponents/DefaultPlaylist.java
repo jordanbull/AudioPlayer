@@ -59,4 +59,13 @@ public class DefaultPlaylist extends Playlist {
         String FXMLname = "DefaultPlaylist.fxml";
         return getClass().getResource(FXMLname);
     }
+
+    @Override
+    protected void renamePlaylistInGUI(String oldName, String newName) {
+        choosePlaylist.getItems().remove(oldName);
+        choosePlaylist.getItems().add(newName);
+        if (this.getName().equals(oldName)) {
+            setPlaylistGUI(newName);
+        }
+    }
 }

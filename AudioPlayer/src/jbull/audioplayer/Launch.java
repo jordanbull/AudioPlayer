@@ -59,10 +59,9 @@ public class Launch extends AnchorPane implements Component {
     
     protected void launch() {
         try {
-            Database.connectToDatabase();
             Database.Library.createTracksTable();
             Database.Playlists.createPlaylistsTable();
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             System.exit(-1);
         }

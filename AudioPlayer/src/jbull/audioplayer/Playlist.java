@@ -22,7 +22,7 @@ public abstract class Playlist extends AnchorPane implements Component {
     private ArrayList<TrackView> tracks;
     private int position = -1;
     private String playlistName;
-    private HashMap<String, Integer> playlistMapping = new HashMap<String, Integer>();
+    private static HashMap<String, Integer> playlistMapping = new HashMap<String, Integer>();
     
     public Playlist() {
         FXMLLoader fxmlLoader = new FXMLLoader(getFXML());
@@ -248,6 +248,13 @@ public abstract class Playlist extends AnchorPane implements Component {
     
     protected abstract void addPlaylistToGUI(String playlistName);
     
+    protected static void addPlaylistToAllPanes(String playlistName, int playlistID) {
+        ArrayList<Playlist> playlistPanes = Application.contentPane.getPlaylistPanes();
+        for (Playlist playlist : playlistPanes) {
+            playlist.addPlaylist(playlistName, playlistID);
+        }
+    }
+    
     protected void removePlaylist(String playlistName) {
         playlistMapping.remove(playlistName);
         removePlaylistFromGUI(playlistName);
@@ -265,6 +272,8 @@ public abstract class Playlist extends AnchorPane implements Component {
     
     protected abstract void setPlaylistGUI(String playlistName);
     
+    protected abstract void renamePlaylistInGUI(String oldName, String newName);
+    
     protected void removeAllPlaylists() {
         for (String playlist : playlistMapping.keySet()) {
             removePlaylist(playlist);
@@ -273,5 +282,23 @@ public abstract class Playlist extends AnchorPane implements Component {
     
     protected int getCurrentPlaylistID() {
         return playlistMapping.get(this.getName());
+    }
+    
+    private void renamePlaylist(String oldName, String newName) {
+        renamePlaylistInGUI(oldName, newName);
+    }
+    
+    protected static void renamePlaylistInAllPanes(String oldName, String newName) {
+        ArrayList<Playlist> playlistPanes = Application.contentPane.getPlaylistPanes();
+        for (Playlist playlist : playlistPanes) {
+            playlist.renamePlaylist(oldName, newName);
+        }
+        playlistMapping.put(newName, playlistMapping.remove(oldName));
+        try {
+            Database.Playlists.renamePlaylist(oldName, newName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            //TODO handle this in gui
+        }
     }
 }
