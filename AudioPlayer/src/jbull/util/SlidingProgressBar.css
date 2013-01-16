@@ -1,0 +1,21 @@
+/* 
+    Document   : SlidingProgressBar
+    Created on : Jan 15, 2013, 4:53:13 AM
+    Author     : jordan
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+.slider .track {
+    -fx-background-color:null;  /* Hide the track */
+    -fx-background-insets: 1 0 -1 0, 0, 1;
+    -fx-background-radius: 2.5, 2.5, 1.5;
+    -fx-padding: 5;
+}
+.slider .thumb {
+    -fx-padding: 5;
+}

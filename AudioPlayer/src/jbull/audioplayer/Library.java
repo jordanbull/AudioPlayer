@@ -91,8 +91,6 @@ public abstract class Library extends AnchorPane implements Component {
     
     protected static String addTrackToLibrary(URI uri) {
         String path = uri.toString();
-        //System.out.println(path);
-        //System.out.println(uri.toString());
         try {
             if (!Database.Library.trackPathExists(path)) {
                 String extension = path.substring(path.lastIndexOf('.')+1);
@@ -112,5 +110,18 @@ public abstract class Library extends AnchorPane implements Component {
         }
     }
     
+    protected void removeTrackFromLibrary(TrackView track) {
+        try {
+            Database.Library.removeTrack(track.getSongID());
+            removeTrackFromGUI(track);
+            for (Playlist playlist : Application.contentPane.getPlaylistPanes()) {
+                playlist.restoreAllPlaylistTracksFromDatabase();
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    protected abstract void removeTrackFromGUI(TrackView track);
     
 }

@@ -89,4 +89,9 @@ public class DefaultLibrary extends Library {
     protected void setFilter(int index) {
         filters.getSelectionModel().select(index);
     }
+
+    @Override
+    protected void removeTrackFromGUI(TrackView track) {
+        sort(getFilter());
+    }
 }

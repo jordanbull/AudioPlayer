@@ -279,10 +279,9 @@ public class Database {
         
         protected static void renamePlaylist(String oldName, String newName) throws SQLException {
             newName = format(newName, 255);
-            String sqlCommand = "UPDATE "+PLAYLIST_TABLE+" SET name=\""+newName
-                    +"\" WHERE name=\""+oldName+"\"";
+            String sqlCommand = "UPDATE "+PLAYLIST_TABLE+" SET name=\'"+newName
+                    +"\' WHERE name=\'"+oldName+"\'";
             connection.createStatement().execute(sqlCommand);
-            createPlaylist("new playlist");
         }
     
         protected static void removePlaylist(String name) throws SQLException {
@@ -307,12 +306,15 @@ public class Database {
             addSongToPlaylist.execute();
         }
         
-        protected static void removeSongFromPlaylist(int playlistID, int position, int numSongs) throws SQLException {
+        protected static void removeSongFromPlaylist(int playlistID, int position) throws SQLException {
             removeSongFromPlaylist.setInt(1, playlistID);
             removeSongFromPlaylist.setInt(2, position);
             removeSongFromPlaylist.executeUpdate();
-            
-            for (int i = position; i < numSongs; i++) {
+            String sqlQuery = "SELECT COUNT(*) AS num FROM "+PLAYLIST_SONGS_TABLE+" WHERE pid="+playlistID;
+                ResultSet r = connection.createStatement().executeQuery(sqlQuery);
+                r.next();
+                int totalSongs = r.getInt("num");
+            for (int i = position+1; i <= totalSongs; i++) {
                 decrementSongPosition.setInt(1, playlistID);
                 decrementSongPosition.setInt(2, i);
                 decrementSongPosition.executeUpdate();
@@ -321,14 +323,11 @@ public class Database {
         
         protected static void removeSongFromAllPlaylists(int songID) throws SQLException {
             String sqlQuery = "SELECT pid, position FROM "+PLAYLIST_SONGS_TABLE
-                    +" WHERE sid="+songID;
+                    +" WHERE sid="+songID+" ORDER BY position DESC";
             ResultSet results = connection.createStatement().executeQuery(sqlQuery);
             while (results.next()) {
-                sqlQuery = "SELECT COUNT(*) AS num FROM "+PLAYLIST_SONGS_TABLE+" WHERE pid="+results.getInt("pid");
-                ResultSet r = connection.createStatement().executeQuery(sqlQuery);
-                r.next();
-                int totalSongs = r.getInt("num");
-                removeSongFromPlaylist(results.getInt("pid"), results.getInt("position"), totalSongs);
+                /**/
+                removeSongFromPlaylist(results.getInt("pid"), results.getInt("position"));
             }
         }
         
@@ -350,7 +349,7 @@ public class Database {
             ResultSet results = getPlaylistSongs.executeQuery();
             ArrayList<Integer> songIDs = new ArrayList<Integer>();
             while (results.next()) {
-                songIDs.add(results.getInt(playlistID));
+                songIDs.add(results.getInt("sid"));
             }
             return songIDs;
         }

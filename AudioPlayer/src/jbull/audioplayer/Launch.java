@@ -158,16 +158,7 @@ public class Launch extends AnchorPane implements Component {
                     playlistPane.addPlaylist(dbps.get(j).name, dbps.get(j).playlistID);
                 }
                 playlistPane.setPlaylist("new playlist"); //TODO handle actual default playlists and load the correspondingsongs
-                try {
-                    ArrayList<Integer> trackIDs =
-                        Database.Playlists.getPlaylistSongs(playlistPane.getCurrentPlaylistID());
-                    for (Integer trackID : trackIDs) {
-                        playlistPane.restoreTrackFromDatabase(Application.createTrackView(Database.Library.getTrack(trackID)));
-                    }
-                } catch (SQLException e) {
-                    //TODO inform user that there was an error loading the playlist songs
-                    e.printStackTrace();
-                }
+                playlistPane.restoreAllPlaylistTracksFromDatabase();
             }
 
         }

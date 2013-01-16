@@ -3,11 +3,11 @@ package jbull.util;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyLongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -20,26 +20,30 @@ import javafx.util.Duration;
 public abstract class ObservableTimer<T> {
 
     private boolean playing = false;
-    private long length = 0;
-    private final long periodMS = 500; //how often to update progress in milliseconds
-    private long numCycles = 0;
-    private IntegerProperty cyclesThusFar = new SimpleIntegerProperty(0);
+    private LongProperty length = new SimpleLongProperty(0l);
+    private LongProperty periodMS = new SimpleLongProperty(500); //how often to update progress in milliseconds
+    private LongProperty numCycles = new SimpleLongProperty(0);
+    private LongProperty cyclesThusFar = new SimpleLongProperty(0);
     private DoubleProperty progress = new SimpleDoubleProperty(0);
-    private double progressPerCycle = 0.0;
+    private DoubleProperty progressPerCycle = new SimpleDoubleProperty(0.0);
     private Timeline timeline;
 
+    public ObservableTimer() {
+        setLength(0);
+        numCycles.bind(this.length.divide(periodMS));
+        progressPerCycle.bind(new SimpleDoubleProperty(1.0).divide(numCycles));
+    }
+    
     public void setLength(long length) {
-        this.length = length;
-        numCycles = length/periodMS;
-        progressPerCycle = 1.0/numCycles;
+        this.length.set(length);
         cyclesThusFar.set(0);
         progress.set(0);
-        timeline = new Timeline(new KeyFrame(Duration.millis(periodMS), new EventHandler<ActionEvent>() {
+        timeline = new Timeline(new KeyFrame(Duration.millis(periodMS.doubleValue()), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 cyclesThusFar.set(cyclesThusFar.get()+1);
-                progress.set(progress.get()+progressPerCycle);
-                if (cyclesThusFar.get() >= numCycles) {
+                progress.set(progress.get()+progressPerCycle.get());
+                if (cyclesThusFar.get() >= numCycles.get()) {
                     timeline.stop();
                     cyclesThusFar.set(0);
                     progress.set(0);
@@ -60,18 +64,18 @@ public abstract class ObservableTimer<T> {
         timeline.pause();
     }
 
-    public void seek(int cycleNum) {
+    public void seek(long millis) {
         timeline.pause();
-        cyclesThusFar.set(cycleNum);
-        progress.set(cycleNum*progressPerCycle);
+        cyclesThusFar.set(millis/periodMS.get());
+        progress.set(cyclesThusFar.getValue()*progressPerCycle.getValue());
         if (playing)
             timeline.play();
     }
 
     public long getTotalCycles() {
-        return numCycles;
+        return numCycles.get();
     }
-    public ReadOnlyIntegerProperty getNumCycles() {
+    public ReadOnlyLongProperty getNumCycles() {
         return cyclesThusFar;
     }
     public ReadOnlyDoubleProperty getProgress() {
@@ -81,7 +85,13 @@ public abstract class ObservableTimer<T> {
         return cyclesThusFar.multiply(periodMS);
     }
     public ObservableValue<Number> getElapsedSeconds() {
-        return cyclesThusFar.multiply(periodMS/1000);
+        return cyclesThusFar.multiply(periodMS.get()/1000.0);
+    }
+    public void setPeriod(long periodMS) {
+        this.periodMS.set(periodMS);
+    }
+    public long getPeriod() {
+        return this.periodMS.get();
     }
 
     public abstract T onCompletion();

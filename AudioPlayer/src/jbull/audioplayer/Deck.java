@@ -1,14 +1,11 @@
 package jbull.audioplayer;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.animation.Timeline;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
@@ -21,9 +18,9 @@ import jbull.util.ObservableTimer;
 public abstract class Deck extends AnchorPane implements Component {
     
     private Playlist playlist;
-    private TrackView trackView;
     private Codec codec;
-    private boolean playing = false;
+    private long lengthMS = 0;
+    private SimpleBooleanProperty playing = new SimpleBooleanProperty(false);
     private ObservableTimer timer;
     
     public Deck() {
@@ -42,6 +39,7 @@ public abstract class Deck extends AnchorPane implements Component {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        setGUINoTrack();
     }
     
     protected void setPlaylist(Playlist playlist) {
@@ -49,12 +47,15 @@ public abstract class Deck extends AnchorPane implements Component {
     }
     
     public boolean load(TrackView track) {
+        if (codec != null) {
+            codec.destroy();
+            codec = null;
+        }
         try {
             String path = Database.Library.getTrack(track.songID).filepath;
-            System.out.println(path);
             codec = Codec.getAppropriateCodec(track.fileType);
             codec.load(new URI(path));
-            trackView = track;
+            lengthMS = track.length * 1000l;
             setGUI(track);
             setTimer(track.length*1000);//must multiply by 100 since timer takes millis
             attachTimerToProgress(timer.getElapsedMillis(), timer.getProgress());
@@ -71,39 +72,120 @@ public abstract class Deck extends AnchorPane implements Component {
     protected abstract void setGUI(TrackView track);
     
     public boolean play() {
-        if (!playing) {
-            if (trackView == null) {
-                trackView = playlist.current();
+        boolean load = true;
+        if (!playing.getValue()) {
+            if (codec == null) {
+                TrackView trackView = playlist.current();
                 if (trackView == null) {
                     return false;
                 }
+                load = load(trackView);
             }
-            boolean load = load(trackView);
             if (!load) {
                 return load;
             }
-            codec.play();
-            playing = true;
-            timer.play();
-            return load;
         }
-        return true;
+        codec.play();
+        timer.play();
+        playing.set(true);
+        return load;
+    }
+    
+    public void pause() {
+        if (playing.getValue()) {
+            if (codec != null) {
+                codec.pause();
+            }
+            timer.pause();
+            playing.set(false);
+        }
+    }
+    
+    public void next() {
+        codec.destroy();
+        codec = null;
+        if (!playlist.hasNext()) {
+            pause();
+            timer.seek(0);
+            setGUINoTrack();
+            playlist.next();
+        } else {
+            load(playlist.next());
+            if (isPlaying()) {
+                play();
+            } else {
+                pause();
+            }
+        }
+    }
+    
+    public void prev() {
+        final long MAX_TIME_FOR_PREV_SONG = 3;
+        if ((Double)timer.getElapsedSeconds().getValue() >= MAX_TIME_FOR_PREV_SONG) { //restart song
+            boolean playing = isPlaying();
+            pause();
+            seek(0);
+            if (playing) {
+                play();
+            }
+        } else { // go to prev song
+            codec.destroy();
+            codec = null;
+            if (playlist.hasPrev()) {
+                load(playlist.prev());
+                if (isPlaying()) {
+                    play();
+                } else {
+                    pause();
+                }
+            } else { //no previous track
+                playlist.prev();
+                pause();
+                timer.seek(0);
+                setGUINoTrack();
+            }
+        }
+    }
+    
+    public void seek(long millis) {
+        codec.pause();
+        timer.pause();
+        codec.seek(millis/1000);
+        timer.seek(millis);
+        if (isPlaying()) {
+            play();
+        }
+    }
+    
+    public void seek(double progress) {
+        seek(Math.round(progress * lengthMS));
     }
     
     protected void setTimer(long length) {
         //TODO
+        timer.pause();
+        timer.seek(0);
         timer.setLength(length);
-        
+        timer.setPeriod(100);
     }
     
     public boolean isPlaying() {
-        return playing;
+        return playing.getValue();
     }
     
     private void songFinished() {
-        //TODO
+        next();
+    }
+    
+    private long getSongLnegth() {
+        return lengthMS;
+    }
+    
+    protected ReadOnlyBooleanProperty getObservablePlaying() {
+        return playing;
     }
     
     protected abstract void attachTimerToProgress(ObservableValue<java.lang.Number> elapsedMillis, ObservableValue<java.lang.Number> progress);
     
+    protected abstract void setGUINoTrack();
 }

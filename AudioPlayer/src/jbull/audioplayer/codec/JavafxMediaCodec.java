@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 import jbull.audioplayer.Codec;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -24,7 +25,7 @@ public class JavafxMediaCodec extends Codec {
     
     @Override
     protected Codec createInstance() {
-        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF); 
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
         return new JavafxMediaCodec();
     }
 
@@ -46,12 +47,12 @@ public class JavafxMediaCodec extends Codec {
 
     @Override
     protected void pause() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        mediaPlayer.pause();
     }
 
     @Override
     protected void seek(double seconds) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        mediaPlayer.seek(new Duration(seconds*1000.0));
     }
 
     @Override
@@ -80,6 +81,13 @@ public class JavafxMediaCodec extends Codec {
     protected void setForPlaying() {
         Media media = new Media(uri.toString());
         mediaPlayer = new MediaPlayer(media);
+    }
+
+    @Override
+    protected void destroy() {
+        mediaPlayer.stop();
+        mediaPlayer = null;
+        uri = null;
     }
     
 }

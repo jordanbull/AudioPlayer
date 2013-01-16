@@ -22,6 +22,7 @@ public abstract class Playlist extends AnchorPane implements Component {
     private ArrayList<TrackView> tracks;
     private int position = -1;
     private String playlistName;
+    private boolean resetOnPlaylistChange = true; //This should be true almost all of the time except in particular circumstances
     private static HashMap<String, Integer> playlistMapping = new HashMap<String, Integer>();
     
     public Playlist() {
@@ -40,9 +41,10 @@ public abstract class Playlist extends AnchorPane implements Component {
             public void handle(DragEvent event) {
                 if (Application.draggedObject instanceof TrackView) {
                     Dragboard db = event.getDragboard();
-                    TrackView draggedTrack = ((TrackView) Application.draggedObject);
+                    TrackView draggedTrack = (TrackView) Application.draggedObject;
                     if (draggedTrack.isInPlaylist() && draggedTrack.getPlaylistInfo().getName().equals(me.getName())) { //moved from this playlist
-                        event.acceptTransferModes(TransferMode.MOVE);
+                        System.out.println("drag over from playlist");
+                        event.acceptTransferModes(TransferMode.ANY);
                     } else if (!db.hasString()) { // moved from library
                         event.acceptTransferModes(TransferMode.COPY);
                     }
@@ -54,9 +56,12 @@ public abstract class Playlist extends AnchorPane implements Component {
         this.setOnDragDropped(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 if (Application.draggedObject instanceof TrackView) {
+                    TrackView track = (TrackView) Application.draggedObject;
                     Dragboard db = event.getDragboard();
-                    if (db.hasString() && db.getString().equals(me.getName())) { //moved from this playlist
+                    if (track.isInPlaylist() /*&& /*track.getPlaylistInfo().getName().equals(getName())*/) { //moved from this playlist
                         event.acceptTransferModes(TransferMode.MOVE);
+                        TrackView trackView = Application.createTrackView((TrackView) Application.draggedObject);
+                        me.addTrack(trackView);
                     } else if (!db.hasString()) { // moved from library
                         TrackView trackView = Application.createTrackView((TrackView) Application.draggedObject);
                         me.addTrack(trackView);
@@ -182,9 +187,24 @@ public abstract class Playlist extends AnchorPane implements Component {
     }
     
     protected void restoreTrackFromDatabase(TrackView track) {
-        tracks.add(track);
         track.setPlaylist(this, this.numTracks());
         addTrackToGUI(track);
+        tracks.add(track);
+    }
+    
+    protected void restoreAllPlaylistTracksFromDatabase() {
+        tracks.clear();
+        this.emptyTracksFromGUI();
+        try {
+            ArrayList<Integer> trackIDs =
+                Database.Playlists.getPlaylistSongs(this.getCurrentPlaylistID());
+            for (Integer trackID : trackIDs) {
+                this.restoreTrackFromDatabase(Application.createTrackView(Database.Library.getTrack(trackID)));
+            }
+        } catch (SQLException e) {
+            //TODO inform user that there was an error loading the playlist songs
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -208,7 +228,7 @@ public abstract class Playlist extends AnchorPane implements Component {
      */
     public void removeTrack(int index) {
         try {
-            Database.Playlists.removeSongFromPlaylist(this.getCurrentPlaylistID(), index, this.numTracks());
+            Database.Playlists.removeSongFromPlaylist(this.getCurrentPlaylistID(), index);
         } catch (SQLException e) {
             //TODO inform user that the change will not be reflected in the database.
             //TODO reflect changes to all playlist guis
@@ -219,18 +239,19 @@ public abstract class Playlist extends AnchorPane implements Component {
         }
         tracks.remove(index);
         for (int i = index; i < tracks.size(); i++) {
+            int was = tracks.get(i).getPlaylistInfo().getPosition();
             tracks.get(i).getPlaylistInfo().setPosition(i);
         }
         removeTrackFromGUI(index);
-        
     }
     
     public void removeTrack(TrackView track) {
-        System.out.println(tracks.indexOf(track));
         removeTrack(tracks.indexOf(track));
     }
     
     protected abstract void removeTrackFromGUI(int index);
+    
+    protected abstract void emptyTracksFromGUI();
     
     /**
      * Returns the name of the currently displayed playlist.
@@ -268,6 +289,11 @@ public abstract class Playlist extends AnchorPane implements Component {
         }
         this.playlistName = playlistName;
         setPlaylistGUI(playlistName);
+        
+        if (resetOnPlaylistChange) { //fills playlist and resets playlist position
+            this.restoreAllPlaylistTracksFromDatabase();
+            this.position = -1;
+        }
     }
     
     protected abstract void setPlaylistGUI(String playlistName);
@@ -285,15 +311,23 @@ public abstract class Playlist extends AnchorPane implements Component {
     }
     
     private void renamePlaylist(String oldName, String newName) {
+        resetOnPlaylistChange = false;
+        try {
         renamePlaylistInGUI(oldName, newName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            resetOnPlaylistChange = true;
+        }
     }
     
     protected static void renamePlaylistInAllPanes(String oldName, String newName) {
         ArrayList<Playlist> playlistPanes = Application.contentPane.getPlaylistPanes();
+        playlistMapping.put(newName, playlistMapping.remove(oldName));
         for (Playlist playlist : playlistPanes) {
             playlist.renamePlaylist(oldName, newName);
         }
-        playlistMapping.put(newName, playlistMapping.remove(oldName));
+        
         try {
             Database.Playlists.renamePlaylist(oldName, newName);
         } catch (SQLException e) {

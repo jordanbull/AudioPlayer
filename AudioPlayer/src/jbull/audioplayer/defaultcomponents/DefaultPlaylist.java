@@ -1,6 +1,8 @@
 package jbull.audioplayer.defaultcomponents;
 
 import java.net.URL;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
@@ -22,6 +24,13 @@ public class DefaultPlaylist extends Playlist {
     public DefaultPlaylist() {
         super();
         tracks = list.getItems();
+        choosePlaylist.valueProperty().addListener(new ChangeListener<String>(){
+            @Override
+            public void changed(ObservableValue ov, String oldValue, String newValue) {
+                setPlaylist(newValue);
+            }
+        });
+        choosePlaylist.getItems().clear();
     }
     
     @Override
@@ -67,5 +76,10 @@ public class DefaultPlaylist extends Playlist {
         if (this.getName().equals(oldName)) {
             setPlaylistGUI(newName);
         }
+    }
+
+    @Override
+    protected void emptyTracksFromGUI() {
+        tracks.clear();
     }
 }

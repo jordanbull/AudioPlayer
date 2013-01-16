@@ -51,6 +51,15 @@ public abstract class TrackView extends AnchorPane implements Component {
         setOnDragDone();
         setOnDragOver();
         setOnDragCompleted();
+        final TrackView me = this;
+        this.setOnMousePressed(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.isSecondaryButtonDown()) {
+                    new TrackContextMenu(me).show(event);
+                }
+            }
+        });
     }
     private void setOnDragDetected() {
         final TrackView me = this;

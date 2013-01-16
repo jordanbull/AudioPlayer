@@ -60,4 +60,6 @@ public abstract class Codec {
         public String year = "";
         public int length = 0;
     }
+    
+    protected abstract void destroy();
 }
