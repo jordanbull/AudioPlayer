@@ -2,14 +2,12 @@ package jbull.audioplayer.defaultcomponents;
 
 import java.net.URL;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import jbull.audioplayer.Deck;
 import jbull.audioplayer.TrackView;
 import jbull.util.SlidingProgressBar;
@@ -24,14 +22,10 @@ public class DefaultDeck extends Deck {
     Label songTitleLabel;
     @FXML
     SlidingProgressBar progressBar;
-    @FXML
-    Button playButton;
-    @FXML
-    Button nextButton;
-    @FXML
-    Button prevButton;
+    @FXML ImageView buttonsImageView;
     
     ReadOnlyBooleanProperty playing;
+    
 
     public DefaultDeck() {
         super();
@@ -39,13 +33,14 @@ public class DefaultDeck extends Deck {
         playing.addListener(new ChangeListener<Boolean>(){
             @Override
             public void changed(ObservableValue<? extends Boolean> ov, Boolean oldValue, Boolean newValue) {
-                if (newValue) {
-                    playButton.setText("||");
-                } else {
-                    playButton.setText(">");
-                }
+                //TODO
             }
         });
+        /*ImageView playImg = new ImageView(new Image(this.getClass().getResource("playbutton.svg").toExternalForm()));
+        playImg.fitWidthProperty().bind(playButton.widthProperty());
+        playImg.fitHeightProperty().bind(playButton.heightProperty());
+        playButton.setGraphic(playImg);*/
+        //playButton.getStylesheets().add(this.getClass().getResource("playbutton-style.css").toExternalForm());
     }
     
     @Override
@@ -72,24 +67,58 @@ public class DefaultDeck extends Deck {
     }
     
     @FXML
-    public void playButtonPressed() {
+    public void playPause() {
         if (playing.getValue()) {
             super.pause();
         } else {
             super.play();
         }
+        playPauseHover();
+    }
+    @FXML protected void playPausePressed() {
+        setImage("playpressed.png");
+    }
+    @FXML protected void playPauseHover() {
+        setImage("playhover.png");
     }
     @FXML
-    public void nextButtonPressed() {
-        next();
+    @Override
+    public void next() {
+        super.next();
+        nextHover();
+    }
+    @FXML protected void nextPressed() {
+        setImage("nextpressed.png");
+    }
+    @FXML protected void nextHover() {
+        setImage("nexthover.png");
     }
     @FXML
-    public void prevButtonPressed() {
-        prev();
+    @Override
+    public void prev() {
+        super.prev();
+        prevHover();
+    }
+    @FXML protected void prevPressed() {
+        setImage("prevpressed.png");
+    }
+    @FXML protected void prevHover() {
+        setImage("prevhover.png");
+    }
+    @FXML protected void normal() {
+        setImage("nomouse.png");
     }
 
     @Override
     protected void setGUINoTrack() {
         songTitleLabel.setText("");
+    }
+    
+    private void setImage(String imgName) {
+        String folder = "playbuttonshowing/";
+        if (isPlaying()) {
+            folder = "pausebuttonshowing/";
+        }
+        buttonsImageView.setImage(new Image(DefaultDeck.class.getResource(folder+imgName).toExternalForm()));
     }
 }

@@ -31,17 +31,22 @@ public class ArtistFilter implements Filter {
             TreeItem<Node> artistNode = null;
             TreeItem<Node> albumNode = null;
             for (Database.Library.Track track : tracks) {
-                System.out.println(track.artist);
-                if (track.artist.equals(artist)) {
+                if (!track.artist.equals(artist)) {
                     if (artist != null) {
                         root.getChildren().add(artistNode);
                     }
                     artist = track.artist;
+                    if (artist.equals("")) {
+                        artist = "<no artist>";
+                    }
                     artistNode = createArtistNode(artist);
                     album = null;
                 }
-                if (track.album.equals(album)) {
+                if (!track.album.equals(album)) {
                     album = track.album;
+                    if (album.equals("")) {
+                        album = "<no album>";
+                    }
                     albumNode = appendAlbumNode(artistNode, album);
                 }
                 appendTrack(albumNode, Application.createTrackView(track));

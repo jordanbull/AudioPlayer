@@ -1,0 +1,16 @@
+/* 
+    Document   : PlayPauseButton
+    Created on : Jan 15, 2013, 7:19:09 PM
+    Author     : jordan
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+.toggle-button:selected {
+    -fx-background-color:null;
+}
+

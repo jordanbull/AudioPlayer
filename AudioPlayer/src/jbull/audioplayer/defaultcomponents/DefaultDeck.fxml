@@ -1,26 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
+<?import java.net.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
+<?import jbull.util.*?>
 <?import jbull.util.SlidingProgressBar?>
+<?scenebuilder-classpath-element ../../../../dist/AudioPlayer.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="songTitle" minHeight="-1.0" minWidth="185.0" prefHeight="127.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="songTitle" minHeight="-1.0" minWidth="185.0" prefHeight="167.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <SlidingProgressBar fx:id="progressBar" layoutY="53.0" prefWidth="572.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-    <HBox alignment="TOP_CENTER" fillHeight="true" layoutY="64.0" minWidth="185.0" prefHeight="49.0" prefWidth="601.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+    <SlidingProgressBar fx:id="progressBar" layoutY="142.0" prefWidth="572.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+    <HBox alignment="TOP_CENTER" fillHeight="true" layoutY="14.0" minWidth="185.0" prefHeight="153.0" prefWidth="601.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
       <children>
         <Region prefHeight="200.0" prefWidth="200.0" />
-        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="60.0" mnemonicParsing="false" onAction="#prevButtonPressed" text="&lt;&lt;" HBox.hgrow="NEVER" />
-        <Button fx:id="playButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="60.0" mnemonicParsing="false" onAction="#playButtonPressed" text="&gt;" HBox.hgrow="NEVER" />
-        <Button fx:id="nextButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="60.0" mnemonicParsing="false" onAction="#nextButtonPressed" text="&gt;&gt;" HBox.hgrow="NEVER" />
+        <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="153.0" prefWidth="248.7912936862424">
+          <children>
+            <ImageView fx:id="buttonsImageView" fitHeight="153.0" fitWidth="248.7912936862424" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true">
+              <image>
+                <Image url="@playbuttonshowing/nomouse.png" />
+              </image>
+            </ImageView>
+            <Circle layoutX="172.0" layoutY="90.0" onMouseEntered="#nextHover" onMouseExited="#normal" onMousePressed="#nextPressed" onMouseReleased="#next" opacity="0.0" radius="34.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.8" visible="true">
+              <fill>
+                <Color blue="1.000" green="0.565" opacity="0.000" red="0.118" fx:id="x1" />
+              </fill>
+            </Circle>
+            <Circle fill="$x1" layoutX="73.0" layoutY="90.0" onMouseEntered="#prevHover" onMouseExited="#normal" onMousePressed="#prevPressed" onMouseReleased="#prev" opacity="0.0" radius="34.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.8" visible="true" />
+            <Circle fill="$x1" layoutX="122.0" layoutY="55.0" onMouseEntered="#playPauseHover" onMouseExited="#normal" onMousePressed="#playPausePressed" onMouseReleased="#playPause" opacity="0.0" radius="41.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="1.8" visible="true" />
+          </children>
+        </AnchorPane>
         <Region prefHeight="200.0" prefWidth="200.0" />
       </children>
     </HBox>
-    <Label fx:id="songTitleLabel" alignment="CENTER" layoutY="4.0" prefHeight="49.0" prefWidth="572.0" text="Label" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0">
+    <Label fx:id="songTitleLabel" alignment="CENTER" layoutY="4.0" prefHeight="24.0" prefWidth="573.0" text="Label" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0">
       <font>
         <Font size="20.0" />
       </font>
