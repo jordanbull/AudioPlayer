@@ -102,7 +102,9 @@ public abstract class Deck extends AnchorPane implements Component {
     }
     
     public void next() {
-        codec.destroy();
+        if (codec != null) {
+            codec.destroy();
+        }
         codec = null;
         if (!playlist.hasNext()) {
             pause();
@@ -129,7 +131,9 @@ public abstract class Deck extends AnchorPane implements Component {
                 play();
             }
         } else { // go to prev song
-            codec.destroy();
+            if (codec != null) {
+                codec.destroy();
+            }
             codec = null;
             if (playlist.hasPrev()) {
                 load(playlist.prev());

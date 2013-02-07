@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import org.h2.Driver; //this import is here purely to remind the developer of the dependency on H2
 
 /**
  *

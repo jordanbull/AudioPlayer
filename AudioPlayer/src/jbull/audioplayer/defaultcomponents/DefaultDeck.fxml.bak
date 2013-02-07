@@ -22,7 +22,7 @@
         <Region prefHeight="200.0" prefWidth="200.0" />
         <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="153.0" prefWidth="248.7912936862424">
           <children>
-            <ImageView fitHeight="153.0" fitWidth="248.7912936862424" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="buttonsImageView" fitHeight="153.0" fitWidth="248.7912936862424" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true">
               <image>
                 <Image url="@playbuttonshowing/nomouse.png" />
               </image>
