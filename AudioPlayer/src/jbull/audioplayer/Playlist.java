@@ -251,6 +251,11 @@ public abstract class Playlist extends AnchorPane implements Component {
     
     protected abstract void removeTrackFromGUI(int index);
     
+    protected void clearPlaylist() {
+        tracks.clear();
+        emptyTracksFromGUI();
+    }
+    
     protected abstract void emptyTracksFromGUI();
     
     /**
@@ -288,15 +293,21 @@ public abstract class Playlist extends AnchorPane implements Component {
             throw new RuntimeException();
         }
         this.playlistName = playlistName;
-        setPlaylistGUI(playlistName);
-        
+        System.out.println(this.playlistName);
+        setSelectedPlaylistGUI(playlistName);
+        clearPlaylist();
         if (resetOnPlaylistChange) { //fills playlist and resets playlist position
+            System.out.println("in");
             this.restoreAllPlaylistTracksFromDatabase();
             this.position = -1;
         }
     }
     
-    protected abstract void setPlaylistGUI(String playlistName);
+    /**
+     * Sets the GUI component that displays which playlist is currently selected.
+     * @param playlistName 
+     */
+    protected abstract void setSelectedPlaylistGUI(String playlistName);
     
     protected abstract void renamePlaylistInGUI(String oldName, String newName);
     
@@ -307,6 +318,7 @@ public abstract class Playlist extends AnchorPane implements Component {
     }
     
     protected int getCurrentPlaylistID() {
+        System.out.println(playlistMapping.get(this.getName()));
         return playlistMapping.get(this.getName());
     }
     

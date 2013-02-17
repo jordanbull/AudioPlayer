@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import org.h2.Driver; //this import is here purely to remind the developer of the dependency on H2
 
@@ -272,10 +273,14 @@ public class Database {
             
         }
     
-        protected static void createPlaylist(String name) throws SQLException {
+        protected static int createPlaylist(String name) throws SQLException {
             name = format(name, 255);
             String sqlCommand = "INSERT INTO "+PLAYLIST_TABLE+" (name) VALUES (\'"+name+"\')";
-            connection.createStatement().execute(sqlCommand);
+            Statement s = connection.createStatement();
+            s.execute(sqlCommand);
+            ResultSet results = s.getGeneratedKeys();
+            results.next();
+            return results.getInt(1);
         }
         
         protected static void renamePlaylist(String oldName, String newName) throws SQLException {

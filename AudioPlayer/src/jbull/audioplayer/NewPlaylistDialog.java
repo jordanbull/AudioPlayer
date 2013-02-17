@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jbull.audioplayer;
 
 import java.io.IOException;
@@ -77,14 +73,10 @@ public class NewPlaylistDialog extends AnchorPane implements Component {
             message.setText("This name is taken.");
         } else {
             try {
-                Database.Playlists.createPlaylist(newName);
-                int playlistID = -1;
-                for (Database.Playlists.Playlist playlist : Database.Playlists.getAllPlaylists()) {
-                    playlistID = playlist.playlistID;
-                    break;
-                }
+                int playlistID = Database.Playlists.createPlaylist(newName);
                 Playlist.addPlaylistToAllPanes(newName, playlistID);
-                Application.contentPane.getPlaylistPanes().get(0).setPlaylist(newName);
+                Playlist playlist = Application.contentPane.getPlaylistPanes().get(0);
+                playlist.setPlaylist(newName);
             } catch (SQLException e) {
                 e.printStackTrace();
                 //TODO handle user

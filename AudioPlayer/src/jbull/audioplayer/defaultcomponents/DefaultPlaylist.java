@@ -59,7 +59,7 @@ public class DefaultPlaylist extends Playlist {
     }
 
     @Override
-    protected void setPlaylistGUI(String playlistName) {
+    protected void setSelectedPlaylistGUI(String playlistName) {
         choosePlaylist.getSelectionModel().select(playlistName);
     }
 
@@ -74,7 +74,7 @@ public class DefaultPlaylist extends Playlist {
         choosePlaylist.getItems().remove(oldName);
         choosePlaylist.getItems().add(newName);
         if (this.getName().equals(oldName)) {
-            setPlaylistGUI(newName);
+            setSelectedPlaylistGUI(newName);
         }
     }
 
