@@ -17,8 +17,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
 import jbull.audioplayer.codec.JavafxMediaCodec;
 import jbull.audioplayer.defaultcomponents.DefaultTrackView;
-import jbull.audioplayer.filter.ArtistFilter;
-import jbull.audioplayer.filter.TitleFilter;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.event.Event;
 import javafx.stage.Stage;

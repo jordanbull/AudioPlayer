@@ -13,14 +13,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
-import jbull.audioplayer.Application;
 import jbull.audioplayer.Library;
 import jbull.audioplayer.TrackView;
-import jbull.audioplayer.filter.Filter;
 
 /**
  * A standard controller for a library that displays all tracks and allows for
@@ -29,12 +24,6 @@ import jbull.audioplayer.filter.Filter;
  */
 public class DefaultLibrary extends Library {
     
-    @FXML
-    ListView list;
-    @FXML
-    ComboBox filters;
-    @FXML
-    TextField searchTerm;
     @FXML TableView<TrackView> tableView;
     @FXML TableColumn<TrackView, String> titleColumn;
     @FXML TableColumn<TrackView, String> artistColumn;
@@ -76,7 +65,6 @@ public class DefaultLibrary extends Library {
     }
     
     private ArrayList<TrackView> tracks = new ArrayList<TrackView>();
-    private HashMap<String, Filter> filterMap = new HashMap<String, Filter>();
     
     @Override
     protected int getNumTracks() {
@@ -84,55 +72,13 @@ public class DefaultLibrary extends Library {
     }
 
     @Override
-    protected void sort(Filter filter) {
-        empty();
-        filter.sortAndInsert(this);
-    }
-
-    @Override
     protected void empty() {
-        list.getItems().clear();
-    }
-
-    @Override
-    protected boolean addFilter(Filter filter) {
-        if (filters.getItems().contains(filter.getName())) {
-            return false;
-        }
-        filters.getItems().add(filter.getName());
-        filterMap.put(filter.getName(), filter);
-        return true;
-    }
-
-    @FXML @Override
-    protected void onFilterChange() {
-        Filter filter = getFilter();
-        sort(filter);
-    }
-
-    @Override
-    public void appendItem(Node node) {
-        list.getItems().add(node);
-    }
-
-    @Override
-    protected void removeFilters() {
-        filters.getItems().clear();
-    }
-
-    @Override
-    protected Filter getFilter() {
-        return filterMap.get((String)filters.getSelectionModel().getSelectedItem());
-    }
-
-    @Override
-    protected void setFilter(int index) {
-        filters.getSelectionModel().select(index);
+        tableView.getItems().clear();
     }
 
     @Override
     protected void removeTrackFromGUI(TrackView track) {
-        sort(getFilter());
+        tableView.getItems().remove(track);
     }
 
     @Override

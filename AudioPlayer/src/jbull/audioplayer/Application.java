@@ -97,7 +97,16 @@ public class Application extends AnchorPane {
         //System.out.println(addResults);
         
         Library lib = contentPane.getLibraryPane();
-        lib.sort(lib.getFilter());
+        lib.empty();
+        try {
+        ArrayList<TrackView> tracks = new ArrayList<TrackView>(); //TODO there's gotta be a more efficient way
+        for (Database.Library.Track track : Database.Library.getAllTracks("title")) {
+            tracks.add(Application.createTrackView(track));
+        }
+        lib.addTracksToGUI(tracks);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
     
     public static Class getTrackViewClass() {
