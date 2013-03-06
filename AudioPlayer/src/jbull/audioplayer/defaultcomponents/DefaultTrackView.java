@@ -29,10 +29,26 @@ public class DefaultTrackView extends TrackView {
     @Override
     public void setInfo(String title, String artist, String album, String genre,
                 int length, int songID, String filePath, String fileType) {
-        super.title = title;
-        super.artist = artist;
-        super.album = album;
-        super.genre = genre;
+        if (super.title == null) {
+            super.title.set("");
+        } else {
+            super.title.set(title);
+        }
+        if (artist == null) {
+            super.artist.set("");
+        } else {
+            super.artist.set(artist);
+        }
+        if (album == null) {
+            super.album.set("");
+        } else {
+            super.album.set(album);
+        }
+        if (genre == null) {
+            super.genre.set("");
+        } else {
+            super.genre.set(genre);
+        }
         super.length = length;
         super.songID = songID;
         super.filePath = filePath;

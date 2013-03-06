@@ -23,6 +23,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -40,7 +41,8 @@ public class Application extends AnchorPane {
     
     @FXML Menu deletePlaylistMenu;
     @FXML Menu renamePlaylistMenu;
-    
+    @FXML protected Pane tempPanel;
+    protected static Application application;
     static ContentPane contentPane;
     
     private static Class trackViewClass;
@@ -58,7 +60,9 @@ public class Application extends AnchorPane {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        application = this;
     }
+    
     
     @FXML protected void menuAddSongs() {addSongs();}
     @FXML protected void menuAddDirectory() {addDirectory();}

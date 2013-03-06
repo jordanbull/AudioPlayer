@@ -1,6 +1,8 @@
 package jbull.audioplayer;
 
 import java.io.IOException;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.ClipboardContent;
@@ -15,10 +17,10 @@ import javafx.scene.layout.AnchorPane;
  * @author jordan
  */
 public abstract class TrackView extends AnchorPane implements Component {
-    protected String title;
-    protected String artist;
-    protected String album;
-    protected String genre;
+    protected SimpleStringProperty title = new SimpleStringProperty();
+    protected SimpleStringProperty artist = new SimpleStringProperty();
+    protected SimpleStringProperty album = new SimpleStringProperty();
+    protected SimpleStringProperty genre = new SimpleStringProperty();
     protected int length;
     protected int songID;
     protected String fileType;
@@ -65,6 +67,8 @@ public abstract class TrackView extends AnchorPane implements Component {
         final TrackView me = this;
         this.setOnDragDetected(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
+                Application.application.tempPanel.getChildren().add(me);
+                System.out.println("in");
                 Dragboard db = me.startDragAndDrop(TransferMode.ANY);
                 
                 /* Put a string on a dragboard */
@@ -89,6 +93,7 @@ public abstract class TrackView extends AnchorPane implements Component {
                     me.getPlaylistInfo().playlist.removeTrack(me);
                 }
                 event.consume();
+                Application.application.tempPanel.getChildren().clear();
             }
         });
     }
@@ -136,7 +141,7 @@ public abstract class TrackView extends AnchorPane implements Component {
     }
     
     public TrackView(TrackView tv) {
-        this(tv.title, tv.artist, tv.album, tv.genre, tv.length, tv.songID,
+        this(tv.title.get(), tv.artist.get(), tv.album.get(), tv.genre.get(), tv.length, tv.songID,
                 tv.filePath, tv.fileType);
     }
     
@@ -174,16 +179,16 @@ public abstract class TrackView extends AnchorPane implements Component {
      * Getter methods
      */
     public String getTitle() {
-        return this.title;
+        return this.title.get();
     }
     public String getArtist() {
-        return this.artist;
+        return this.artist.get();
     }
     public String getAlbum() {
-        return this.album;
+        return this.album.get();
     }
     public String getGenre() {
-        return this.genre;
+        return this.genre.get();
     }
     public int getLength() {
         return this.length;

@@ -34,7 +34,7 @@ public class Database {
     
     
     protected static String getDBLocation() {
-        if (System.getProperty("java.class.path").lastIndexOf('/') == -1) {
+        if (System.getProperty("java.class.path").lastIndexOf('/') == -1) { //windows
             return "C:" +
                     "\\database\\db";
             //TODO find a better location in windows to put the database

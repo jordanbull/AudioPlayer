@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<fx:root type="javafx.scene.layout.AnchorPane" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <ListView fx:id="list" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="SOMETIMES" />
+        <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="60.0" prefHeight="60.0" prefWidth="600.0" VBox.vgrow="NEVER">
+          <children>
+            <Label alignment="CENTER" prefHeight="32.0" prefWidth="111.0" text="Sort By" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <Label alignment="CENTER" prefHeight="30.0" prefWidth="111.0" text="Search" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <ComboBox fx:id="filters" maxWidth="1.7976931348623157E308" onAction="#onFilterChange" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Item 1" />
+                  <String fx:value="Item 2" />
+                  <String fx:value="Item 3" />
+                </FXCollections>
+              </items>
+              <GridPane.margin>
+                <Insets />
+              </GridPane.margin>
+            </ComboBox>
+            <TextField fx:id="searchTerm" maxWidth="1.7976931348623157E308" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2147483647" />
+          </children>
+          <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="97.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="218.0" />
+          </columnConstraints>
+          <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+            <RowConstraints fillHeight="true" minHeight="10.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+          </rowConstraints>
+        </GridPane>
+      </children>
+    </VBox>
+  </children>
+</fx:root>

@@ -128,10 +128,20 @@ public class Launch extends AnchorPane implements Component {
         private void addFilters() {
             //TODO
             Library lib = Application.contentPane.getLibraryPane();
-            lib.removeFilters();
-            lib.addFilter(new TitleFilter());
-            lib.addFilter(new ArtistFilter());
-            lib.setFilter(0);
+            try {
+                /*lib.removeFilters();
+                lib.addFilter(new TitleFilter());
+                lib.addFilter(new ArtistFilter());
+                lib.setFilter(0);*/
+                ArrayList<Database.Library.Track> tracks = Database.Library.getAllTracks("title");
+                ArrayList<TrackView> trackViews = new ArrayList<TrackView>();
+                for (Database.Library.Track track : tracks) {
+                    trackViews.add(Application.createTrackView(track));
+                }
+                lib.addTracksToGUI(trackViews);
+            } catch (SQLException ex) {
+                Logger.getLogger(Launch.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         private void launchPlugins() {
@@ -140,7 +150,7 @@ public class Launch extends AnchorPane implements Component {
 
         private void fillLibrary() {
             Library lib = Application.contentPane.getLibraryPane();
-            lib.sort(lib.getFilter()); //TODO get default filter
+            //lib.sort(lib.getFilter()); //TODO get default filter
         }
 
         private void fillPlaylists() {

@@ -3,6 +3,7 @@ package jbull.audioplayer;
 import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
+import java.util.Collection;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -109,6 +110,9 @@ public abstract class Library extends AnchorPane implements Component {
             return "Could not add";
         }
     }
+    
+    protected abstract void addTrackToGUI(TrackView track);
+    protected abstract void addTracksToGUI(Collection<TrackView> tracks);
     
     protected void removeTrackFromLibrary(TrackView track) {
         try {
