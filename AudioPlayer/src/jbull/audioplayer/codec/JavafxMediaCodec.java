@@ -37,7 +37,9 @@ public class JavafxMediaCodec extends Codec {
     @Override
     protected void load(URI uri) {
         this.uri = uri;
-        mediaPlayer = new MediaPlayer(new Media(uri.toString()));
+        System.out.println(uri.toString());
+        Media media = new Media(uri.toString());
+        mediaPlayer = new MediaPlayer(media);
     }
 
     @Override
@@ -79,7 +81,7 @@ public class JavafxMediaCodec extends Codec {
 
     @Override
     protected void setForPlaying() {
-        Media media = new Media(uri.toString());
+        Media media = new Media(uri.getPath());
         mediaPlayer = new MediaPlayer(media);
     }
 

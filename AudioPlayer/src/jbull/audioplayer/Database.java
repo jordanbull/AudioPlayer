@@ -34,9 +34,15 @@ public class Database {
     
     
     protected static String getDBLocation() {
-        return System.getProperty("java.class.path").substring(0,
-                System.getProperty("java.class.path").lastIndexOf('/')) +
-                "/database/db";
+        if (System.getProperty("java.class.path").lastIndexOf('/') == -1) {
+            return "C:" +
+                    "\\database\\db";
+            //TODO find a better location in windows to put the database
+        } else {
+            return System.getProperty("java.class.path").substring(0,
+                    System.getProperty("java.class.path").lastIndexOf('/')) +
+                    "/database/db";
+        }
     }
     
     protected static Connection connectToDatabase() throws ClassNotFoundException, SQLException {
